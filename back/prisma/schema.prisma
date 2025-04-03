@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  password      String
+  username      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  fridgeItems   FridgeItem[]
+  appliances    Appliance[]
+  mealHistory   MealHistory[]
+  shoppingLists ShoppingList[]
+}
+
+model FridgeItem {
+  id             String   @id @default(cuid())
+  userId         String
+  ingredientName String
+  quantity       Float
+  unit           String
+  expirationDate DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  metadata       Json?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Appliance {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Recipe {
+  id           String   @id @default(cuid())
+  title        String
+  ingredients  Json
+  instructions String[]
+  cookingTime  Int
+  difficulty   String
+  appliances   String[]
+  metadata     Json?
+  embedding    Float[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  mealHistory  MealHistory[]
+}
+
+model MealHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  recipeId     String
+  dateCooked   DateTime @default(now())
+  rating       Int?
+  notes        String?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: NoAction)
+
+  @@index([userId])
+  @@index([recipeId])
+}
+
+model ShoppingList {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  metadata  Json?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     ShoppingListItem[]
+
+  @@index([userId])
+}
+
+model ShoppingListItem {
+  id             String       @id @default(cuid())
+  shoppingListId String
+  ingredientName String
+  quantity       Float
+  unit           String
+  status         String       @default("pending")
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+
+  @@index([shoppingListId])
+} 

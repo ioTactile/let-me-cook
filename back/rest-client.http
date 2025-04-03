@@ -1,0 +1,250 @@
+### Variables d'environnement
+@baseUrl = http://localhost:8000/api
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbTkxajM0ZnAwMDAwdXYwdWplZzBlM3FqIiwiaWF0IjoxNzQzNjk1MTc4LCJleHAiOjE3NDQyOTk5Nzh9.AZtiYKQwNok_QVlw1lXYWO5K8gCRO_o8lQCM2hq8n_E
+
+### Tests des routes d'authentification
+### Inscription
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "username": "Test User"
+}
+
+### Connexion
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+### Déconnexion
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{authToken}}
+
+### Obtenir le profil utilisateur
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{authToken}}
+
+### Tests des routes du frigo
+### Obtenir tous les ingrédients du frigo
+GET {{baseUrl}}/fridge
+Authorization: Bearer {{authToken}}
+
+### Ajouter un ingrédient au frigo
+POST {{baseUrl}}/fridge
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "ingredientName": "Lait",
+  "quantity": 1,
+  "unit": "L",
+  "expiryDate": "2024-04-01"
+}
+
+### Mettre à jour un ingrédient
+PUT {{baseUrl}}/fridge/cm91i9g4m0001qc0uo62iabwv
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "ingredientName": "Lait",
+  "quantity": 2,
+  "unit": "L",
+  "expiryDate": "2024-04-15"
+}
+
+### Supprimer un ingrédient
+DELETE {{baseUrl}}/fridge/cm91i9g4m0001qc0uo62iabwv
+Authorization: Bearer {{authToken}}
+
+### Obtenir les ingrédients qui vont périmer
+GET {{baseUrl}}/fridge/expiring?days=7
+Authorization: Bearer {{authToken}}
+
+### Tests des routes des appareils
+### Obtenir tous les appareils
+GET {{baseUrl}}/appliances
+Authorization: Bearer {{authToken}}
+
+### Obtenir un appareil par ID
+GET {{baseUrl}}/appliances/cm91ibt380002qc0uwmnl48bk
+Authorization: Bearer {{authToken}}
+
+### Ajouter un appareil
+POST {{baseUrl}}/appliances
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Gasinière",
+  "description": "Gasinière de 1000W"
+}
+
+### Mettre à jour un appareil
+PUT {{baseUrl}}/appliances/cm91ibt380002qc0uwmnl48bk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Four électrique",
+  "description": "Four électrique de 1000W"
+}
+
+### Supprimer un appareil
+DELETE {{baseUrl}}/appliances/cm91ibt380002qc0uwmnl48bk
+Authorization: Bearer {{authToken}}
+
+### Tests des routes des recettes
+### Créer une nouvelle recette
+POST {{baseUrl}}/recipes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Gratin dauphinois",
+  "ingredients": [
+    {
+      "name": "Pommes de terre",
+      "quantity": 1,
+      "unit": "kg"
+    },
+    {
+      "name": "Crème fraîche",
+      "quantity": 200,
+      "unit": "ml"
+    }
+  ],
+  "cookingTime": 60,
+  "difficulty": "easy",
+  "appliances": ["four"],
+  "instructions": ["1. Éplucher les pommes de terre...", "2. Préchauffer le four à 180°C"]
+}
+
+### Trouver des recettes similaires
+POST {{baseUrl}}/recipes/similar
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "fridgeItems": ["pommes de terre", "crème fraîche"],
+  "appliances": ["four"],
+  "maxCookingTime": 90
+}
+
+### Obtenir une recette par ID
+GET {{baseUrl}}/recipes/cm91jcmev0001lz0uyonigldk
+Authorization: Bearer {{authToken}}
+
+### Mettre à jour une recette
+PUT {{baseUrl}}/recipes/cm91jcmev0001lz0uyonigldk
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Gratin dauphinois amélioré",
+  "cookingTime": 75
+}
+
+### Supprimer une recette
+DELETE {{baseUrl}}/recipes/cm91jcmev0001lz0uyonigldk
+Authorization: Bearer {{authToken}}
+
+### Tests des routes des listes de courses
+### Obtenir toutes les listes de courses
+GET {{baseUrl}}/shopping-lists
+Authorization: Bearer {{authToken}}
+
+### Créer une nouvelle liste de courses
+POST {{baseUrl}}/shopping-lists
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Courses hebdomadaires",
+  "items": [
+    {
+      "ingredientName": "Pain",
+      "quantity": 2,
+      "unit": "baguette"
+    }
+  ]
+}
+
+### Mettre à jour une liste de courses
+PUT {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "Courses mensuelles",
+  "status": "pending"
+}
+
+### Supprimer une liste de courses
+DELETE {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8
+Authorization: Bearer {{authToken}}
+
+### Ajouter un item à une liste
+POST {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8/items
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "ingredientName": "Lait",
+  "quantity": 2,
+  "unit": "L"
+}
+
+### Mettre à jour un item d'une liste
+PUT {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8/items/cm91k5hed0000sa0u9hat9bam
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "ingredientName": "Lait",
+  "quantity": 3,
+  "unit": "L"
+}
+
+### Supprimer un item d'une liste
+DELETE {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8/items/cm91k5hed0000sa0u9hat9bam
+Authorization: Bearer {{authToken}}
+
+### Valider une liste de courses
+POST {{baseUrl}}/shopping-lists/cm91jzzjy0000pl0u0d1bbeb8/validate
+Authorization: Bearer {{authToken}}
+
+### Tests des routes d'IA
+### Générer des suggestions de recettes
+POST {{baseUrl}}/ai/suggest-recipes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "ingredients": ["pommes de terre", "crème fraîche"],
+  "appliances": ["four"]
+}
+
+### Analyser une recette
+POST {{baseUrl}}/ai/analyze-recipe
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "recipe": "Gratin dauphinois traditionnel avec pommes de terre, crème fraîche et fromage râpé"
+}
+
+### Générer une liste de courses
+POST {{baseUrl}}/ai/generate-shopping-list
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "recipe": "Gratin dauphinois traditionnel avec pommes de terre, crème fraîche et fromage râpé"
+}
