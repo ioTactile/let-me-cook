@@ -18,6 +18,7 @@ export const Snackbar: React.FC = () => {
       case "warning":
         return "#FFA726";
       case "info":
+        return theme.colors.secondary;
       default:
         return theme.colors.primary;
     }

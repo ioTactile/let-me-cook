@@ -1,3 +1,5 @@
+import { ShoppingListItemStatus, ShoppingListStatus } from "@/types/enums";
+
 export interface User {
   id: string;
   email: string;
@@ -50,7 +52,7 @@ export interface Appliance {
 export interface ShoppingList {
   id: string;
   name: string;
-  status: "pending" | "completed" | "cancelled";
+  status: ShoppingListStatus;
   items: ShoppingListItem[];
   metadata?: Record<string, any>;
   userId: string;
@@ -63,8 +65,9 @@ export interface ShoppingListItem {
   ingredientName: string;
   quantity: number;
   unit: string;
-  status: "pending" | "bought" | "cancelled";
+  status: ShoppingListItemStatus;
   shoppingListId: string;
+  imageUrl?: string;
 }
 
 export interface RecipeSearchContext {

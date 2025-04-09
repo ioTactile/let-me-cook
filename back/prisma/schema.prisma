@@ -78,11 +78,47 @@ model MealHistory {
   @@index([recipeId])
 }
 
+enum ShoppingListStatus {
+  pending
+  completed
+  cancelled
+}
+
+enum ShoppingListItemStatus {
+  pending
+  bought
+  cancelled
+}
+
+enum Unit {
+  g
+  kg
+  L
+  mL
+  piece
+  pack
+  bottle
+  box
+  bag
+  can
+  jar
+  bunch
+  head
+  clove
+  leaf
+  slice
+  cup
+  tablespoon
+  teaspoon
+  pinch
+  dash
+}
+
 model ShoppingList {
   id        String   @id @default(cuid())
   userId    String
   name      String
-  status    String   @default("pending")
+  status    ShoppingListStatus   @default(pending)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   metadata  Json?
@@ -93,13 +129,18 @@ model ShoppingList {
 }
 
 model ShoppingListItem {
-  id             String       @id @default(cuid())
+  id             String   @id @default(cuid())
   shoppingListId String
   ingredientName String
   quantity       Float
-  unit           String
-  status         String       @default("pending")
+  unit           Unit
+  status         ShoppingListItemStatus   @default(pending)
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
   shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
 
   @@index([shoppingListId])
+  @@index([ingredientName])
+  @@index([shoppingListId, ingredientName])
 } 

@@ -61,7 +61,7 @@ export class OpenAIService {
           },
         ],
         temperature: 0.5,
-        max_tokens: 500,
+        max_tokens: 1000,
       });
 
       return response.choices[0].message.content;
@@ -190,6 +190,65 @@ export class OpenAIService {
       console.log("error generate shopping list", error);
       throw new AppError(
         "Erreur lors de la génération de la liste de courses",
+        500
+      );
+    }
+  }
+
+  static async generateIngredientImageUrl(
+    ingredientName: string
+  ): Promise<string> {
+    try {
+      this.ensureInitialized();
+      const prompt = `
+        Trouvez une image de haute qualité de l'ingrédient suivant sur Unsplash.
+        L'image doit être :
+        - Une photo réelle de l'ingrédient
+        - Bien éclairée et professionnelle
+        - Centrée sur l'ingrédient
+        - Sans texte ou filigrane
+        
+        Ingrédient: ${ingredientName}
+        
+        Répondez uniquement avec l'URL directe de l'image Unsplash, sans texte supplémentaire.
+        L'URL doit être de la forme : https://images.unsplash.com/photo-XXXXXXXXXXXX
+      `;
+
+      const response = await this.client.chat.completions.create({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Vous êtes un assistant spécialisé dans la recherche d'images culinaires sur Unsplash. Vous denez toujours répondre avec une URL directe d'image Unsplash, sans texte supplémentaire. L'image doit être pertinente et de haute qualité.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+      });
+
+      const content = response.choices[0].message.content;
+      if (!content) {
+        throw new AppError("Impossible de générer une URL d'image valide", 500);
+      }
+
+      // Vérifier que l'URL est bien une URL Unsplash
+      if (!content.startsWith("https://images.unsplash.com/photo-")) {
+        throw new AppError(
+          "L'URL générée n'est pas une URL Unsplash valide",
+          500
+        );
+      }
+
+      return content;
+    } catch (error) {
+      console.log("error generate ingredient image url", error);
+      throw new AppError(
+        "Erreur lors de la génération de l'URL de l'image",
         500
       );
     }

@@ -21,6 +21,7 @@ import { useSnackbarStore } from "@/stores/snackbar.store";
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import { theme } from "@/constants/Theme";
 
 export default function NewFridgeItemScreen() {
   const theme = useTheme();
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: "row",
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   error: {
-    color: "red",
+    color: theme.colors.error,
     marginBottom: 8,
   },
 });

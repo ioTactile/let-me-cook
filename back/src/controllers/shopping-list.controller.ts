@@ -137,4 +137,46 @@ export const shoppingListController = {
       next(error);
     }
   },
+
+  async getFrequentItems(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+      const items = await ShoppingListService.getFrequentItems(
+        req.user.id,
+        limit
+      );
+      res.json(items);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async searchItems(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { searchTerm, limit } = req.query;
+      if (!searchTerm || typeof searchTerm !== "string") {
+        res.status(400).json({ message: "Le terme de recherche est requis" });
+        return;
+      }
+
+      console.log("searchTerm", searchTerm);
+
+      const items = await ShoppingListService.searchItems(
+        req.user.id,
+        searchTerm,
+        limit ? parseInt(limit as string) : 10
+      );
+      res.json(items);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

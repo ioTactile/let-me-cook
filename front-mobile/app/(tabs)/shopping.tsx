@@ -1,42 +1,78 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import React, { useRef, useState } from "react";
+import { router } from "expo-router";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  PanResponder,
+  Animated,
+} from "react-native";
 
-import { FAB, useTheme, Text, Card } from "react-native-paper";
+import { FAB, useTheme, Text, Card, IconButton } from "react-native-paper";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { theme } from "@/constants/Theme";
 
-import { ShoppingList } from "@/types";
-import { shoppingLists } from "@/services/api.service";
+import { useGetShoppingLists } from "@/hooks/use-get-shopping-lists";
+import { useSnackbarStore } from "@/stores/snackbar.store";
+import { useDeleteShoppingList } from "@/app/shopping/_mutations/use-delete-shopping-list";
 
 export default function ShoppingScreen() {
-  const [lists, setLists] = useState<ShoppingList[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const theme = useTheme();
+  const [dragging, setDragging] = useState(false);
+  const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const pan = useRef(new Animated.ValueXY()).current;
 
-  useEffect(() => {
-    loadShoppingLists();
-  }, []);
+  const { data: lists, isLoading, error } = useGetShoppingLists();
 
-  const loadShoppingLists = async () => {
-    try {
-      setLoading(true);
-      const response = await shoppingLists.getAll();
-      setLists(response.data);
-    } catch (err) {
-      setError("Erreur lors du chargement des listes de courses");
-    } finally {
-      setLoading(false);
-    }
+  const { showSnackbar } = useSnackbarStore();
+
+  const { mutate: deleteShoppingList, isPending } = useDeleteShoppingList();
+
+  const handleDelete = (id: string) => {
+    deleteShoppingList(id, {
+      onSuccess: () => {
+        showSnackbar("Liste de courses supprimée avec succès");
+      },
+      onError: () => {
+        showSnackbar("Erreur lors de la suppression de la liste de courses");
+      },
+    });
   };
 
-  if (loading) {
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        setDragging(true);
+        pan.setValue({ x: 0, y: 0 });
+      },
+      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
+        useNativeDriver: false,
+      }),
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.moveY > 600) {
+          if (draggedItem) {
+            handleDelete(draggedItem);
+          }
+        }
+        setDragging(false);
+        setDraggedItem(null);
+        Animated.spring(pan, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      },
+    })
+  ).current;
+
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
     return (
       <View style={styles.container}>
-        <Text style={styles.error}>{error}</Text>
+        <Text style={styles.error}>{error.message}</Text>
       </View>
     );
   }
@@ -46,17 +82,42 @@ export default function ShoppingScreen() {
       <FlatList
         data={lists}
         renderItem={({ item }) => (
-          <Card style={styles.card} onPress={() => {}}>
-            <Card.Content>
-              <Text variant="titleLarge">{item.name}</Text>
-              <View style={styles.listInfo}>
-                <Text variant="bodyMedium">{item.items.length} articles</Text>
-                <Text variant="bodySmall" style={styles.status}>
-                  {item.status === "pending" ? "En cours" : "Terminée"}
-                </Text>
-              </View>
-            </Card.Content>
-          </Card>
+          <Animated.View
+            style={[
+              styles.cardContainer,
+              dragging && draggedItem === item.id && styles.dragging,
+              {
+                transform: [
+                  { translateX: draggedItem === item.id ? pan.x : 0 },
+                  { translateY: draggedItem === item.id ? pan.y : 0 },
+                ],
+              },
+            ]}
+            {...panResponder.panHandlers}
+            onTouchStart={() => setDraggedItem(item.id)}
+          >
+            <Card
+              style={styles.card}
+              onPress={() => {
+                if (!dragging) {
+                  router.push({
+                    pathname: "/shopping/[id]",
+                    params: { id: item.id },
+                  });
+                }
+              }}
+            >
+              <Card.Content>
+                <Text variant="titleLarge">{item.name}</Text>
+                <View style={styles.listInfo}>
+                  <Text variant="bodyMedium">{item.items.length} articles</Text>
+                  <Text variant="bodySmall" style={styles.status}>
+                    {item.status === "pending" ? "En cours" : "Terminée"}
+                  </Text>
+                </View>
+              </Card.Content>
+            </Card>
+          </Animated.View>
         )}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
@@ -64,8 +125,19 @@ export default function ShoppingScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => {}}
+        onPress={() => router.push("/shopping/new")}
       />
+
+      {dragging && (
+        <View style={styles.trashContainer}>
+          <IconButton
+            icon="delete"
+            size={40}
+            iconColor={theme.colors.error}
+            style={styles.trashIcon}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -73,13 +145,19 @@ export default function ShoppingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.background,
   },
   list: {
     padding: 16,
   },
-  card: {
+  cardContainer: {
     marginBottom: 16,
+  },
+  card: {
+    elevation: 4,
+  },
+  dragging: {
+    opacity: 0.5,
   },
   listInfo: {
     marginTop: 8,
@@ -88,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   status: {
-    color: "#666",
+    color: theme.colors.secondary,
   },
   fab: {
     position: "absolute",
@@ -97,8 +175,20 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   error: {
-    color: "red",
+    color: theme.colors.error,
     textAlign: "center",
     marginTop: 20,
+  },
+  trashContainer: {
+    position: "absolute",
+    bottom: 80,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 16,
+  },
+  trashIcon: {
+    backgroundColor: theme.colors.background,
   },
 });

@@ -2,6 +2,11 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, Recipe, FridgeItem, Appliance, ShoppingList } from "@/types";
 import { transformEmptyStringsToNull } from "@/utils/transform-empty-string-to-null";
+import { CreateApplianceInputs } from "@/app/appliance/_schemas/create-appliance";
+import { CreateFridgeItemInputs } from "@/app/fridge/_schemas/create-fridge-item";
+import { CreateShoppingListInputs } from "@/app/shopping/_schemas/create-shopping-list";
+import { UpdateShoppingListItemInputs } from "@/app/shopping/_schemas/update-shopping-list-item";
+import { CreateShoppingListItemInputs } from "@/app/shopping/_schemas/create-shopping-list-item";
 
 const API_URL = process.env.API_URL || "http://localhost:8000/api";
 
@@ -48,7 +53,6 @@ export const auth = {
 
 // Recipes
 export const recipes = {
-  getAll: () => api.get<Recipe[]>("/recipes"),
   getSimilar: (data: {
     fridgeItems: string[];
     appliances: string[];
@@ -66,10 +70,9 @@ export const recipes = {
 export const fridge = {
   getAll: () => api.get<FridgeItem[]>("/fridge"),
   getById: (id: string) => api.get<FridgeItem>(`/fridge/${id}`),
-  create: (
-    data: Omit<FridgeItem, "id" | "userId" | "createdAt" | "updatedAt">
-  ) => api.post<FridgeItem>("/fridge", transformEmptyStringsToNull(data)),
-  update: (id: string, data: Partial<FridgeItem>) =>
+  create: (data: CreateFridgeItemInputs) =>
+    api.post<FridgeItem>("/fridge", transformEmptyStringsToNull(data)),
+  update: (id: string, data: Partial<CreateFridgeItemInputs>) =>
     api.put<FridgeItem>(`/fridge/${id}`, transformEmptyStringsToNull(data)),
   delete: (id: string) => api.delete(`/fridge/${id}`),
 };
@@ -78,10 +81,9 @@ export const fridge = {
 export const appliances = {
   getAll: () => api.get<Appliance[]>("/appliances"),
   getById: (id: string) => api.get<Appliance>(`/appliances/${id}`),
-  create: (
-    data: Omit<Appliance, "id" | "userId" | "createdAt" | "updatedAt">
-  ) => api.post<Appliance>("/appliances", data),
-  update: (id: string, data: Partial<Appliance>) =>
+  create: (data: CreateApplianceInputs) =>
+    api.post<Appliance>("/appliances", data),
+  update: (id: string, data: Partial<CreateApplianceInputs>) =>
     api.put<Appliance>(`/appliances/${id}`, data),
   delete: (id: string) => api.delete(`/appliances/${id}`),
 };
@@ -90,12 +92,30 @@ export const appliances = {
 export const shoppingLists = {
   getAll: () => api.get<ShoppingList[]>("/shopping-lists"),
   getById: (id: string) => api.get<ShoppingList>(`/shopping-lists/${id}`),
-  create: (
-    data: Omit<ShoppingList, "id" | "userId" | "createdAt" | "updatedAt">
-  ) => api.post<ShoppingList>("/shopping-lists", data),
-  update: (id: string, data: Partial<ShoppingList>) =>
+  create: (data: CreateShoppingListInputs) =>
+    api.post<ShoppingList>("/shopping-lists", data),
+  update: (id: string, data: UpdateShoppingListItemInputs) =>
     api.put<ShoppingList>(`/shopping-lists/${id}`, data),
+
   delete: (id: string) => api.delete(`/shopping-lists/${id}`),
+  validate: (id: string) => api.post(`/shopping-lists/${id}/validate`),
+  getFrequentItems: (limit: number = 10) =>
+    api.get<
+      { ingredientName: string; count: number; imageUrl: string | null }[]
+    >(`/shopping-lists/frequent-items?limit=${limit}`),
+  searchItems: (searchTerm: string, limit: number = 10) =>
+    api.get<
+      { ingredientName: string; count: number; imageUrl: string | null }[]
+    >(`/shopping-lists/search-items?searchTerm=${searchTerm}&limit=${limit}`),
+  createItem: (id: string, data: CreateShoppingListItemInputs) =>
+    api.post<ShoppingList>(`/shopping-lists/${id}/items`, data),
+  updateItem: (
+    id: string,
+    itemId: string,
+    data: UpdateShoppingListItemInputs
+  ) => api.put<ShoppingList>(`/shopping-lists/${id}/items/${itemId}`, data),
+  deleteItem: (id: string, itemId: string) =>
+    api.delete(`/shopping-lists/${id}/items/${itemId}`),
 };
 
 // AI

@@ -141,6 +141,19 @@ Content-Type: application/json
 GET {{baseUrl}}/recipes/cm91jcmev0001lz0uyonigldk
 Authorization: Bearer {{authToken}}
 
+### Obtenir les ingrédients fréquents
+GET {{baseUrl}}/recipes/frequent-ingredients
+Authorization: Bearer {{authToken}}
+
+### Rechercher des ingrédients
+GET {{baseUrl}}/recipes/search-ingredients
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "searchTerm": "pommes de terre"
+}
+
 ### Mettre à jour une recette
 PUT {{baseUrl}}/recipes/cm91jcmev0001lz0uyonigldk
 Authorization: Bearer {{authToken}}

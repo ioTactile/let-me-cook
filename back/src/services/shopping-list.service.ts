@@ -10,6 +10,7 @@ import {
   CreateShoppingListItemDto,
   UpdateShoppingListItemDto,
 } from "@/types/shopping-list.types";
+import { ShoppingListStatus, ShoppingListItemStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -22,10 +23,12 @@ export class ShoppingListService {
     }
     if (
       data.status !== undefined &&
-      !["pending", "completed", "cancelled"].includes(data.status)
+      !Object.values(ShoppingListStatus).includes(data.status)
     ) {
       throw new AppError(
-        "Le statut doit être 'pending', 'completed' ou 'cancelled'",
+        `Le statut doit être l'une des valeurs suivantes: ${Object.values(
+          ShoppingListStatus
+        ).join(", ")}`,
         400
       );
     }
@@ -51,36 +54,41 @@ export class ShoppingListService {
     }
     if (
       data.status !== undefined &&
-      !["pending", "bought", "cancelled"].includes(data.status)
+      !Object.values(ShoppingListItemStatus).includes(data.status)
     ) {
       throw new AppError(
-        "Le statut doit être 'pending', 'bought' ou 'cancelled'",
+        `Le statut doit être l'une des valeurs suivantes: ${Object.values(
+          ShoppingListItemStatus
+        ).join(", ")}`,
         400
       );
     }
+    if (data.imageUrl !== undefined && !data.imageUrl.trim()) {
+      throw new AppError("L'URL de l'image est requise", 400);
+    }
   }
 
-  private static toPrismaShoppingList(
-    data: CreateShoppingListDto
-  ): Prisma.ShoppingListCreateInput {
-    this.validateListData(data);
-    return {
-      user: {
-        connect: { id: data.userId },
-      },
-      name: data.name,
-      items: {
-        create: data.items.map((item) => ({
-          ingredientName: item.ingredientName,
-          quantity: item.quantity,
-          unit: item.unit,
-          status: item.status,
-        })),
-      },
-      status: data.status || "pending",
-      metadata: data.metadata as Prisma.InputJsonValue,
-    };
-  }
+  // private static toPrismaShoppingList(
+  //   data: CreateShoppingListDto
+  // ): Prisma.ShoppingListCreateInput {
+  //   this.validateListData(data);
+  //   return {
+  //     user: {
+  //       connect: { id: data.userId },
+  //     },
+  //     name: data.name,
+  //     items: {
+  //       create: data.items.map((item) => ({
+  //         ingredientName: item.ingredientName,
+  //         quantity: item.quantity,
+  //         unit: item.unit,
+  //         status: item.status,
+  //       })),
+  //     },
+  //     status: data.status || "pending",
+  //     metadata: data.metadata as Prisma.InputJsonValue,
+  //   };
+  // }
 
   private static toPrismaUpdate(
     data: UpdateShoppingListDto
@@ -107,13 +115,20 @@ export class ShoppingListService {
       quantity: data.quantity,
       unit: data.unit,
       status: data.status || "pending",
+      imageUrl: data.imageUrl,
     };
   }
 
   private static toPrismaListItemUpdate(
     data: UpdateShoppingListItemDto
   ): Prisma.ShoppingListItemUpdateInput {
-    if (data.ingredientName || data.quantity || data.unit || data.status) {
+    if (
+      data.ingredientName ||
+      data.quantity ||
+      data.unit ||
+      data.status ||
+      data.imageUrl
+    ) {
       this.validateListItemData(data);
     }
     return {
@@ -121,6 +136,7 @@ export class ShoppingListService {
       quantity: data.quantity,
       unit: data.unit,
       status: data.status,
+      imageUrl: data.imageUrl,
     };
   }
 
@@ -149,6 +165,7 @@ export class ShoppingListService {
       status: prismaItem.status,
       createdAt: prismaItem.createdAt,
       updatedAt: prismaItem.updatedAt,
+      imageUrl: prismaItem.imageUrl,
     };
   }
 
@@ -156,9 +173,47 @@ export class ShoppingListService {
     listData: CreateShoppingListDto
   ): Promise<ShoppingList> {
     try {
+      // Générer toutes les images en parallèle
+      const itemsWithImages = await Promise.all(
+        listData.items.map(async (item) => {
+          const imageUrl = await OpenAIService.generateIngredientImageUrl(
+            item.ingredientName
+          );
+          return {
+            ...item,
+            imageUrl,
+          };
+        })
+      );
+
       const prismaList = await prisma.$transaction(async (tx) => {
-        return await tx.shoppingList.create({
-          data: this.toPrismaShoppingList(listData),
+        // Créer la liste
+        const list = await tx.shoppingList.create({
+          data: {
+            user: {
+              connect: { id: listData.userId },
+            },
+            name: listData.name,
+            status: listData.status || "pending",
+            metadata: listData.metadata as Prisma.InputJsonValue,
+          },
+        });
+
+        // Créer tous les items en une seule fois
+        await tx.shoppingListItem.createMany({
+          data: itemsWithImages.map((item) => ({
+            shoppingListId: list.id,
+            ingredientName: item.ingredientName,
+            quantity: item.quantity,
+            unit: item.unit,
+            status: item.status || "pending",
+            imageUrl: item.imageUrl,
+          })),
+        });
+
+        // Récupérer la liste complète avec ses items
+        return await tx.shoppingList.findUnique({
+          where: { id: list.id },
           include: {
             items: true,
           },
@@ -261,9 +316,16 @@ export class ShoppingListService {
     itemData: CreateShoppingListItemDto
   ): Promise<ShoppingListItem> {
     try {
+      const imageUrl = await OpenAIService.generateIngredientImageUrl(
+        itemData.ingredientName
+      );
+
       const prismaItem = await prisma.$transaction(async (tx) => {
         return await tx.shoppingListItem.create({
-          data: this.toPrismaListItem(itemData),
+          data: this.toPrismaListItem({
+            ...itemData,
+            imageUrl,
+          }),
         });
       });
 
@@ -280,6 +342,26 @@ export class ShoppingListService {
     itemData: UpdateShoppingListItemDto
   ): Promise<ShoppingListItem> {
     try {
+      if (!itemData.ingredientName) {
+        throw new AppError("Le nom de l'ingrédient est requis", 400);
+      }
+
+      if (itemData.imageUrl) {
+        itemData.imageUrl = await OpenAIService.generateIngredientImageUrl(
+          itemData.ingredientName
+        );
+      }
+
+      const previousItem = await prisma.shoppingListItem.findUnique({
+        where: { id },
+      });
+
+      if (previousItem?.ingredientName !== itemData.ingredientName) {
+        itemData.imageUrl = await OpenAIService.generateIngredientImageUrl(
+          itemData.ingredientName
+        );
+      }
+
       const prismaItem = await prisma.$transaction(async (tx) => {
         return await tx.shoppingListItem.update({
           where: { id },
@@ -342,6 +424,146 @@ export class ShoppingListService {
         "Erreur lors de la génération de la liste optimisée",
         500
       );
+    }
+  }
+
+  static async getFrequentItems(
+    userId: string,
+    limit: number = 10
+  ): Promise<
+    { ingredientName: string; count: number; imageUrl: string | null }[]
+  > {
+    try {
+      const frequentItems = await prisma.shoppingListItem.groupBy({
+        by: ["ingredientName"],
+        where: {
+          shoppingList: {
+            userId: userId,
+          },
+        },
+        _count: {
+          ingredientName: true,
+        },
+        orderBy: {
+          _count: {
+            ingredientName: "desc",
+          },
+        },
+        take: limit,
+      });
+
+      const itemsWithImages = await Promise.all(
+        frequentItems.map(async (item) => {
+          const lastItem = await prisma.shoppingListItem.findFirst({
+            where: {
+              AND: [
+                {
+                  ingredientName: item.ingredientName,
+                },
+                {
+                  shoppingList: {
+                    userId: userId,
+                  },
+                },
+              ],
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+            select: {
+              imageUrl: true,
+            },
+          });
+
+          return {
+            ingredientName: item.ingredientName,
+            count: item._count.ingredientName,
+            imageUrl: lastItem?.imageUrl || null,
+          };
+        })
+      );
+
+      return itemsWithImages;
+    } catch (error) {
+      console.log("error getting frequent items", error);
+      throw new AppError(
+        "Erreur lors de la récupération des items fréquents",
+        500
+      );
+    }
+  }
+
+  static async searchItems(
+    userId: string,
+    searchTerm: string,
+    limit: number = 10
+  ): Promise<
+    { ingredientName: string; count: number; imageUrl: string | null }[]
+  > {
+    try {
+      const frequentItems = await prisma.shoppingListItem.groupBy({
+        by: ["ingredientName"],
+        where: {
+          AND: [
+            {
+              shoppingList: {
+                userId: userId,
+              },
+            },
+            {
+              ingredientName: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+        _count: {
+          ingredientName: true,
+        },
+        orderBy: {
+          _count: {
+            ingredientName: "desc",
+          },
+        },
+        take: limit,
+      });
+
+      const itemsWithImages = await Promise.all(
+        frequentItems.map(async (item) => {
+          const lastItem = await prisma.shoppingListItem.findFirst({
+            where: {
+              AND: [
+                {
+                  ingredientName: item.ingredientName,
+                },
+                {
+                  shoppingList: {
+                    userId: userId,
+                  },
+                },
+              ],
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+            select: {
+              imageUrl: true,
+            },
+          });
+
+          return {
+            ingredientName: item.ingredientName,
+            count: item._count.ingredientName,
+            imageUrl: lastItem?.imageUrl || null,
+          };
+        })
+      );
+
+      return itemsWithImages;
+    } catch (error) {
+      console.log("error searching items", error);
+      throw new AppError("Erreur lors de la recherche des items", 500);
     }
   }
 }

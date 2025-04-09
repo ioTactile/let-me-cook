@@ -1,55 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, StyleSheet, FlatList } from "react-native";
+import { router } from "expo-router";
 
 import { FAB, useTheme, Text, Card } from "react-native-paper";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-import { Appliance } from "@/types";
-import { appliances } from "@/services/api.service";
+import { useGetAppliances } from "@/hooks/use-get-appliances";
+import { theme } from "@/constants/Theme";
 
 export default function AppliancesScreen() {
-  const [applianceList, setApplianceList] = useState<Appliance[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const theme = useTheme();
 
-  useEffect(() => {
-    loadAppliances();
-  }, []);
+  const { data: appliances, isLoading, error } = useGetAppliances();
 
-  const loadAppliances = async () => {
-    try {
-      setLoading(true);
-      const response = await appliances.getAll();
-      setApplianceList(response.data);
-    } catch (err) {
-      setError("Erreur lors du chargement des appareils");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStatusChange = async (appliance: Appliance) => {
-    try {
-      await appliances.update(appliance.id, appliance);
-      setApplianceList(
-        applianceList.map((item) =>
-          item.id === appliance.id ? appliance : item
-        )
-      );
-    } catch (err) {
-      setError("Erreur lors de la mise à jour du statut");
-    }
-  };
-
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
   if (error) {
     return (
       <View style={styles.container}>
-        <Text style={styles.error}>{error}</Text>
+        <Text style={styles.error}>{error.message}</Text>
       </View>
     );
   }
@@ -57,9 +28,17 @@ export default function AppliancesScreen() {
   return (
     <View style={styles.container}>
       <FlatList
-        data={applianceList}
+        data={appliances}
         renderItem={({ item }) => (
-          <Card style={styles.card}>
+          <Card
+            style={styles.card}
+            onPress={() => {
+              router.push({
+                pathname: "/appliance/[id]",
+                params: { id: item.id },
+              });
+            }}
+          >
             <Card.Content style={styles.cardContent}>
               <View style={styles.applianceInfo}>
                 <Text variant="titleLarge">{item.name}</Text>
@@ -74,7 +53,9 @@ export default function AppliancesScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => {}}
+        onPress={() => {
+          router.push("/appliance/new");
+        }}
       />
     </View>
   );
@@ -83,7 +64,7 @@ export default function AppliancesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.background,
   },
   list: {
     padding: 16,
@@ -106,7 +87,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   error: {
-    color: "red",
+    color: theme.colors.error,
     textAlign: "center",
     marginTop: 20,
   },

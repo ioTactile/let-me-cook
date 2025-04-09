@@ -7,14 +7,14 @@ import { recipeController } from "@/controllers/recipe.controller";
 
 const router: Router = Router();
 
-// Créer une nouvelle recette
-router.post("/", invalidateCache, recipeController.createRecipe);
+// Trouver des recettes similaires
+router.post("/similar", recipeController.findSimilarRecipes);
 
 // Obtenir une recette par son ID
 router.get("/:id", cacheMiddleware, recipeController.getRecipeById);
 
-// Trouver des recettes similaires
-router.post("/similar", recipeController.findSimilarRecipes);
+// Créer une nouvelle recette
+router.post("/", invalidateCache, recipeController.createRecipe);
 
 // Mettre à jour une recette
 router.put("/:id", invalidateCache, recipeController.updateRecipe);

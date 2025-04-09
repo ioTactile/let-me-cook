@@ -6,6 +6,7 @@ import { FAB, useTheme, Text, Card } from "react-native-paper";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 import { useGetFridgeItems } from "@/hooks/use-get-fridge-items";
+import { theme } from "@/constants/Theme";
 
 export default function FridgeScreen() {
   const theme = useTheme();
@@ -67,7 +68,7 @@ export default function FridgeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: theme.colors.background,
   },
   list: {
     padding: 16,
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   expirationDate: {
-    color: "#666",
+    color: theme.colors.secondary,
     marginTop: 4,
   },
   fab: {
@@ -89,7 +90,7 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   error: {
-    color: "red",
+    color: theme.colors.error,
     textAlign: "center",
     marginTop: 20,
   },

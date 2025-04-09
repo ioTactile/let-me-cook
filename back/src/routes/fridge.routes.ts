@@ -7,6 +7,9 @@ import { fridgeController } from "@/controllers/fridge.controller";
 
 const router: Router = Router();
 
+// Obtenir les ingrédients qui vont périmer
+router.get("/expiring", fridgeController.getExpiringItems);
+
 // Obtenir tous les ingrédients du frigo
 router.get("/", cacheMiddleware, fridgeController.getFridgeItems);
 
@@ -21,8 +24,5 @@ router.put("/:id", invalidateCache, fridgeController.updateFridgeItem);
 
 // Supprimer un ingrédient
 router.delete("/:id", invalidateCache, fridgeController.deleteFridgeItem);
-
-// Obtenir les ingrédients qui vont périmer
-router.get("/expiring", fridgeController.getExpiringItems);
 
 export const fridgeRoutes = router;

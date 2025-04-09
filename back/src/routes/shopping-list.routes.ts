@@ -7,6 +7,16 @@ import { shoppingListController } from "@/controllers/shopping-list.controller";
 
 const router: Router = Router();
 
+// Obtenir les items fréquents
+router.get(
+  "/frequent-items",
+  cacheMiddleware,
+  shoppingListController.getFrequentItems
+);
+
+// Rechercher des items
+router.get("/search-items", shoppingListController.searchItems);
+
 // Obtenir toutes les listes de courses
 router.get("/", cacheMiddleware, shoppingListController.getShoppingLists);
 
