@@ -24,7 +24,7 @@ const prisma = new PrismaClient();
 const port = process.env.PORT || 8000;
 
 // Configuration Redis
-const redisClient: RedisClientType = createClient({
+export const redisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 

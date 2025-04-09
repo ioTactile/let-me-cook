@@ -1,0 +1,2 @@
+# Renouvellement des certificats Let's Encrypt
+0 0 * * * /c/Users/Jordan/code/1-projects/let-me-cook/back/renew-cert.sh >> /var/log/cert-renew.log 2>&1 

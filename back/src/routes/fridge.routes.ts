@@ -1,82 +1,28 @@
-import { Response, NextFunction, Router } from "express";
-import { FridgeService } from "@/services/fridge.service";
-import { AuthenticatedRequest } from "@/types/express.types";
+import { Router } from "express";
+import {
+  cacheMiddleware,
+  invalidateCache,
+} from "@/middleware/cache.middleware";
+import { fridgeController } from "@/controllers/fridge.controller";
 
 const router: Router = Router();
 
 // Obtenir tous les ingrédients du frigo
-router.get(
-  "/",
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const items = await FridgeService.getFridgeItems(req.user.id);
-      res.json(items);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.get("/", cacheMiddleware, fridgeController.getFridgeItems);
+
+// Obtenir un ingrédient du frigo par son id
+router.get("/:id", cacheMiddleware, fridgeController.getFridgeItemById);
 
 // Ajouter un ingrédient au frigo
-router.post(
-  "/",
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const item = await FridgeService.createFridgeItem({
-        ...req.body,
-        userId: req.user.id,
-      });
-      res.status(201).json(item);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.post("/", invalidateCache, fridgeController.createFridgeItem);
 
 // Mettre à jour un ingrédient
-router.put(
-  "/:id",
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const item = await FridgeService.updateFridgeItem(
-        req.params.id,
-        req.body
-      );
-      res.json(item);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.put("/:id", invalidateCache, fridgeController.updateFridgeItem);
 
 // Supprimer un ingrédient
-router.delete(
-  "/:id",
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      await FridgeService.deleteFridgeItem(req.params.id);
-      res.status(204).send();
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.delete("/:id", invalidateCache, fridgeController.deleteFridgeItem);
 
 // Obtenir les ingrédients qui vont périmer
-router.get(
-  "/expiring",
-  async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      const daysThreshold = parseInt(req.query.days as string) || 7;
-      const items = await FridgeService.getExpiringItems(
-        req.user.id,
-        daysThreshold
-      );
-      res.json(items);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.get("/expiring", fridgeController.getExpiringItems);
 
 export const fridgeRoutes = router;

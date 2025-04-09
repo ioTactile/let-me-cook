@@ -1,61 +1,19 @@
-import { Request, Response, NextFunction, Router } from "express";
+import { Router } from "express";
 import { authMiddleware } from "@/middleware/auth.middleware";
-import { AuthService } from "@/services/auth.service";
+import { userController } from "@/controllers/user.controller";
 
 const router: Router = Router();
 
 // Inscription
-router.post(
-  "/register",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await AuthService.register(req.body, req);
-      res.status(201).json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.post("/register", userController.register);
 
 // Connexion
-router.post(
-  "/login",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await AuthService.login(req.body, req);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.post("/login", userController.login);
 
 // Déconnexion
-router.post(
-  "/logout",
-  authMiddleware,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await AuthService.logout(req);
-      res.status(200).json({ message: "Déconnexion réussie" });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.post("/logout", authMiddleware, userController.logout);
 
 // Obtenir le profil de l'utilisateur connecté
-router.get(
-  "/me",
-  authMiddleware,
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user = await AuthService.getCurrentUser(req.user!.id);
-      res.json(user);
-    } catch (error) {
-      next(error);
-    }
-  }
-);
+router.get("/me", authMiddleware, userController.getCurrentUser);
 
 export const userRoutes = router;

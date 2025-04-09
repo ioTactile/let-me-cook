@@ -1,6 +1,6 @@
 ### Variables d'environnement
 @baseUrl = http://localhost:8000/api
-@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbTkxajM0ZnAwMDAwdXYwdWplZzBlM3FqIiwiaWF0IjoxNzQzNjk1MTc4LCJleHAiOjE3NDQyOTk5Nzh9.AZtiYKQwNok_QVlw1lXYWO5K8gCRO_o8lQCM2hq8n_E
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbTk1bTY4eDIwMDAwazgwdWg0dmVyZGpkIiwiaWF0IjoxNzQzOTQyNDcxLCJleHAiOjE3NDQ1NDcyNzF9.i0jeI-4hoqe2x1v3mNW5SosqR3kY5jN6pbKL4NtG-ns
 
 ### Tests des routes d'authentification
 ### Inscription
@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### Supprimer un ingrédient
-DELETE {{baseUrl}}/fridge/cm91i9g4m0001qc0uo62iabwv
+DELETE {{baseUrl}}/fridge/cm95mcdjy0001k80uuq00iu0v
 Authorization: Bearer {{authToken}}
 
 ### Obtenir les ingrédients qui vont périmer

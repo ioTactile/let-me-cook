@@ -58,7 +58,7 @@ model Recipe {
   difficulty   String
   appliances   String[]
   metadata     Json?
-  embedding    Float[]
+  embedding    Json
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   mealHistory  MealHistory[]

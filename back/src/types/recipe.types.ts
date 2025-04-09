@@ -8,7 +8,7 @@ export interface Recipe extends BaseModel {
   difficulty: string;
   appliances: string[];
   metadata?: Record<string, any>;
-  embedding: number[];
+  embedding: Record<string, number[]>;
 }
 
 export interface CreateRecipeDto {

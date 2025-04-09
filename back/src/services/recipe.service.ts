@@ -51,24 +51,37 @@ export class RecipeService {
   }
 
   private static prepareRecipeForEmbedding(recipe: CreateRecipeDto) {
-    const instructions = Array.isArray(recipe.instructions)
-      ? recipe.instructions.join(" ")
-      : recipe.instructions;
-
-    const appliances = Array.isArray(recipe.appliances)
-      ? recipe.appliances.join(", ")
-      : "";
-
-    return `
-      Titre: ${recipe.title}
-      Ingrédients: ${recipe.ingredients
+    const chunks = {
+      title: recipe.title,
+      ingredients: recipe.ingredients
         .map((i) => `${i.quantity} ${i.unit} de ${i.name}`)
-        .join(", ")}
-      Instructions: ${instructions}
-      Temps de cuisson: ${recipe.cookingTime}
-      Difficulté: ${recipe.difficulty}
-      Appareils: ${appliances}
-    `;
+        .join(", "),
+      instructions: Array.isArray(recipe.instructions)
+        ? recipe.instructions.join(" ")
+        : recipe.instructions,
+      cookingTime: `Temps de cuisson: ${recipe.cookingTime} minutes`,
+      difficulty: `Difficulté: ${recipe.difficulty}`,
+      appliances: `Appareils nécessaires: ${
+        Array.isArray(recipe.appliances) ? recipe.appliances.join(", ") : ""
+      }`,
+    };
+
+    return chunks;
+  }
+
+  private static async generateEmbeddingsForRecipe(recipe: CreateRecipeDto) {
+    const chunks = this.prepareRecipeForEmbedding(recipe);
+    const embeddings = await Promise.all(
+      Object.entries(chunks).map(async ([key, value]) => ({
+        key,
+        embedding: await OpenAIService.generateEmbedding(value),
+      }))
+    );
+
+    return embeddings.reduce((acc, { key, embedding }) => {
+      acc[key] = embedding;
+      return acc;
+    }, {} as Record<string, number[]>);
   }
 
   private static toPrismaRecipe(
@@ -83,6 +96,7 @@ export class RecipeService {
       difficulty: data.difficulty,
       appliances: data.appliances,
       metadata: data.metadata as Prisma.InputJsonValue,
+      embedding: {} as Prisma.InputJsonValue,
     };
   }
 
@@ -120,7 +134,7 @@ export class RecipeService {
       difficulty: prismaRecipe.difficulty,
       appliances: prismaRecipe.appliances,
       metadata: prismaRecipe.metadata as Recipe["metadata"],
-      embedding: prismaRecipe.embedding,
+      embedding: prismaRecipe.embedding as unknown as Record<string, number[]>,
       createdAt: prismaRecipe.createdAt,
       updatedAt: prismaRecipe.updatedAt,
     };
@@ -128,13 +142,12 @@ export class RecipeService {
 
   static async createRecipe(recipeData: CreateRecipeDto): Promise<Recipe> {
     try {
-      const textToEmbed = this.prepareRecipeForEmbedding(recipeData);
-      const embedding = await OpenAIService.generateEmbedding(textToEmbed);
+      const embeddings = await this.generateEmbeddingsForRecipe(recipeData);
 
       const prismaRecipe = await prisma.recipe.create({
         data: {
           ...this.toPrismaRecipe(recipeData),
-          embedding,
+          embedding: embeddings,
         },
       });
 
@@ -146,6 +159,18 @@ export class RecipeService {
     }
   }
 
+  static async getRecipeById(id: string): Promise<Recipe> {
+    const prismaRecipe = await prisma.recipe.findUnique({
+      where: { id },
+    });
+
+    if (!prismaRecipe) {
+      throw new AppError("Recette non trouvée", 404);
+    }
+
+    return this.toRecipe(prismaRecipe);
+  }
+
   static async findSimilarRecipes(
     userContext: RecipeSearchContext
   ): Promise<Recipe[]> {
@@ -154,11 +179,21 @@ export class RecipeService {
         throw new AppError("Aucun contexte fourni pour la recherche", 400);
       }
 
-      const searchText = `
-        Ingrédients disponibles: ${userContext.fridgeItems.join(", ")}
-        Appareils disponibles: ${userContext.appliances.join(", ")}
-      `;
-      const searchEmbedding = await OpenAIService.generateEmbedding(searchText);
+      const searchChunks = {
+        ingredients: `Ingrédients disponibles: ${userContext.fridgeItems.join(
+          ", "
+        )}`,
+        appliances: `Appareils disponibles: ${userContext.appliances.join(
+          ", "
+        )}`,
+      };
+
+      const searchEmbeddings = await Promise.all(
+        Object.entries(searchChunks).map(async ([key, value]) => ({
+          key,
+          embedding: await OpenAIService.generateEmbedding(value),
+        }))
+      );
 
       const prismaRecipes = await Promise.race([
         prisma.$queryRaw`
@@ -174,7 +209,14 @@ export class RecipeService {
             embedding,
             "createdAt" as "created_at",
             "updatedAt" as "updated_at",
-            1 - (embedding::vector <-> ${searchEmbedding}::vector) as similarity
+            (
+              (1 - (embedding->>'ingredients'::vector <-> ${
+                searchEmbeddings.find((e) => e.key === "ingredients")?.embedding
+              }::vector)) * 0.6 +
+              (1 - (embedding->>'appliances'::vector <-> ${
+                searchEmbeddings.find((e) => e.key === "appliances")?.embedding
+              }::vector)) * 0.4
+            ) as similarity
           FROM "Recipe"
           WHERE 
             "cookingTime" <= ${userContext.maxCookingTime || 120}
@@ -182,7 +224,7 @@ export class RecipeService {
               ${userContext.appliances} IS NULL 
               OR appliances && ${userContext.appliances}::text[]
             )
-          ORDER BY embedding::vector <-> ${searchEmbedding}::vector
+          ORDER BY similarity DESC
           LIMIT 5
         `,
         new Promise((_, reject) =>
@@ -199,18 +241,6 @@ export class RecipeService {
       if (error instanceof AppError) throw error;
       throw new AppError("Erreur lors de la recherche de recettes", 500);
     }
-  }
-
-  static async getRecipeById(id: string): Promise<Recipe> {
-    const prismaRecipe = await prisma.recipe.findUnique({
-      where: { id },
-    });
-
-    if (!prismaRecipe) {
-      throw new AppError("Recette non trouvée", 404);
-    }
-
-    return this.toRecipe(prismaRecipe);
   }
 
   static async updateRecipe(
@@ -243,15 +273,14 @@ export class RecipeService {
       };
 
       // Générer le nouvel embedding avec les données fusionnées
-      const textToEmbed = this.prepareRecipeForEmbedding(mergedData);
-      const embedding = await OpenAIService.generateEmbedding(textToEmbed);
+      const embeddings = await this.generateEmbeddingsForRecipe(mergedData);
 
       const prismaRecipe = await prisma.$transaction(async (tx) => {
         return await tx.recipe.update({
           where: { id },
           data: {
             ...this.toPrismaUpdate(recipeData),
-            embedding,
+            embedding: embeddings,
           },
         });
       });

@@ -1,0 +1,16 @@
+FROM nginx:1.25-alpine
+
+# Suppression des configurations par défaut
+RUN rm -rf /etc/nginx/conf.d/*
+
+# Copie de notre configuration personnalisée
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# Création des répertoires pour les logs
+RUN mkdir -p /var/log/nginx
+
+# Exposition des ports
+EXPOSE 80 443
+
+# Démarrage de Nginx
+CMD ["nginx", "-g", "daemon off;"] 
