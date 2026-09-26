@@ -1,9 +1,9 @@
-import React from "react";
-import { StyleSheet } from "react-native";
-import { Snackbar as PaperSnackbar, Text, useTheme } from "react-native-paper";
-import { useSnackbarStore } from "@/stores/snackbar.store";
+import React from 'react';
+import { StyleSheet } from 'react-native';
+import { Snackbar as PaperSnackbar, Text, useTheme } from 'react-native-paper';
+import { useSnackbarStore } from '@/stores/snackbar.store';
 
-export type SnackbarType = "success" | "error" | "info" | "warning";
+export type SnackbarType = 'success' | 'error' | 'info' | 'warning';
 
 export function Snackbar() {
   const theme = useTheme();
@@ -11,13 +11,13 @@ export function Snackbar() {
 
   const getBackgroundColor = () => {
     switch (type) {
-      case "success":
+      case 'success':
         return theme.colors.primary;
-      case "error":
+      case 'error':
         return theme.colors.error;
-      case "warning":
-        return "#FFA726";
-      case "info":
+      case 'warning':
+        return '#FFA726';
+      case 'info':
         return theme.colors.secondary;
       default:
         return theme.colors.primary;
@@ -37,12 +37,12 @@ export function Snackbar() {
 
 const styles = StyleSheet.create({
   snackbar: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
   },
   message: {
-    color: "#fff",
+    color: '#fff',
   },
 });

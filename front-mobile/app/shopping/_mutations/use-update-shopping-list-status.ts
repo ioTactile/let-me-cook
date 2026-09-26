@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { shoppingLists } from "@/services/api.service";
-import { queryKeys } from "@/lib/query-keys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { shoppingLists } from '@/services/api.service';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useUpdateShoppingListStatus = () => {
   const queryClient = useQueryClient();

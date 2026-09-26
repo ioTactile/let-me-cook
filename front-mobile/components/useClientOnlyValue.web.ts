@@ -1,12 +1,13 @@
 import React from 'react';
 
-// `useEffect` is not invoked during server rendering, meaning
-// we can use this to determine if we're on the server or not.
-export function useClientOnlyValue<S, C>(server: S, client: C): S | C {
-  const [value, setValue] = React.useState<S | C>(server);
-  React.useEffect(() => {
-    setValue(client);
-  }, [client]);
+const emptySubscribe = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
-  return value;
+// `useSyncExternalStore` uses getServerSnapshot during SSR/hydration,
+// then switches to the client snapshot — no setState-in-effect needed.
+export function useClientOnlyValue<S, C>(server: S, client: C): S | C {
+  const isClient = React.useSyncExternalStore(emptySubscribe, getClientSnapshot, getServerSnapshot);
+
+  return isClient ? client : server;
 }

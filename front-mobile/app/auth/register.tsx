@@ -1,13 +1,13 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 
-import { TextInput, Button, Text } from "react-native-paper";
+import { TextInput, Button, Text } from 'react-native-paper';
 
-import { RegisterInputs, registerSchema } from "@/app/auth/_schemas/register";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { useRegister } from "@/app/auth/_mutations/register";
+import { RegisterInputs, registerSchema } from '@/app/auth/_schemas/register';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { useRegister } from '@/app/auth/_mutations/register';
 
 export default function RegisterScreen() {
   const {
@@ -17,11 +17,11 @@ export default function RegisterScreen() {
   } = useForm<RegisterInputs>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      username: "",
+      email: '',
+      password: '',
+      username: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const { mutate: register, isPending } = useRegister();
@@ -50,9 +50,7 @@ export default function RegisterScreen() {
           />
         )}
       />
-      {errors.username && (
-        <Text style={styles.error}>{errors.username.message}</Text>
-      )}
+      {errors.username && <Text style={styles.error}>{errors.username.message}</Text>}
 
       <Controller
         control={control}
@@ -86,9 +84,7 @@ export default function RegisterScreen() {
           />
         )}
       />
-      {errors.password && (
-        <Text style={styles.error}>{errors.password.message}</Text>
-      )}
+      {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
       <Button
         mode="contained"
@@ -97,11 +93,11 @@ export default function RegisterScreen() {
         disabled={isPending}
         style={styles.button}
       >
-        S'inscrire
+        S&apos;inscrire
       </Button>
       <Button
         mode="text"
-        onPress={() => router.push("/auth/login")}
+        onPress={() => router.push('/auth/login')}
         disabled={isPending}
         style={styles.button}
       >
@@ -115,10 +111,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   title: {
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 30,
   },
   input: {
@@ -128,7 +124,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   error: {
-    color: "red",
+    color: 'red',
     marginBottom: 10,
   },
 });

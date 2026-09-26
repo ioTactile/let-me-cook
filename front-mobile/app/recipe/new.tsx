@@ -1,5 +1,5 @@
-import { View } from "react-native";
+import { View } from 'react-native';
 
 export default function NewRecipeScreen() {
-  return <View>{/* Contenu à implémenter */}</View>;
+  return <View>{/* TODO: implement content */}</View>;
 }

@@ -1,8 +1,4 @@
-import {
-  FridgeItem,
-  CreateFridgeItemDto,
-  UpdateFridgeItemDto,
-} from "@/types/fridge.types";
+import { FridgeItem, CreateFridgeItemDto, UpdateFridgeItemDto } from '@/types/fridge.types';
 
 export interface FridgeRepository {
   create(data: CreateFridgeItemDto & { metadata?: unknown }): Promise<FridgeItem>;

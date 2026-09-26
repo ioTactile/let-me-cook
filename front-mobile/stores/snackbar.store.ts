@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { SnackbarType } from "@/components/Snackbar";
+import { create } from 'zustand';
+import { SnackbarType } from '@/components/Snackbar';
 
 interface SnackbarState {
   visible: boolean;
@@ -11,9 +11,9 @@ interface SnackbarState {
 
 export const useSnackbarStore = create<SnackbarState>((set) => ({
   visible: false,
-  message: "",
-  type: "info",
-  showSnackbar: (message, type = "info") =>
+  message: '',
+  type: 'info',
+  showSnackbar: (message, type = 'info') =>
     set({
       visible: true,
       message,

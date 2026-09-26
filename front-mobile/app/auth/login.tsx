@@ -1,14 +1,14 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 
-import { TextInput, Button, Text } from "react-native-paper";
+import { TextInput, Button, Text } from 'react-native-paper';
 
-import { useLogin } from "@/app/auth/_mutations/login";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { LoginInputs, loginSchema } from "@/app/auth/_schemas/login";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { theme } from "@/constants/Theme";
+import { useLogin } from '@/app/auth/_mutations/login';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { LoginInputs, loginSchema } from '@/app/auth/_schemas/login';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { theme } from '@/constants/Theme';
 
 export default function LoginScreen() {
   const {
@@ -18,10 +18,10 @@ export default function LoginScreen() {
   } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const { mutate: login, isPending } = useLogin();
@@ -68,9 +68,7 @@ export default function LoginScreen() {
           />
         )}
       />
-      {errors.password && (
-        <Text style={styles.error}>{errors.password.message}</Text>
-      )}
+      {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
 
       <Button
         mode="contained"
@@ -83,7 +81,7 @@ export default function LoginScreen() {
       </Button>
       <Button
         mode="text"
-        onPress={() => router.push("/auth/register")}
+        onPress={() => router.push('/auth/register')}
         disabled={isPending}
         style={styles.button}
       >
@@ -97,10 +95,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   title: {
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 30,
   },
   input: {

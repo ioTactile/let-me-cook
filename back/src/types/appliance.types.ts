@@ -1,4 +1,4 @@
-import { BaseModel } from "@/types/base.types";
+import { BaseModel } from '@/types/base.types';
 
 export interface Appliance extends BaseModel {
   userId: string;

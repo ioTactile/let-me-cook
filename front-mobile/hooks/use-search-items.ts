@@ -1,19 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import { useDebounce } from "react-use";
-import { useState } from "react";
-import { shoppingLists } from "@/services/api.service";
-import { queryKeys } from "@/lib/query-keys";
+import { useQuery } from '@tanstack/react-query';
+import { useDebounce } from 'react-use';
+import { useState } from 'react';
+import { shoppingLists } from '@/services/api.service';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useSearchItems = (searchTerm: string, limit: number = 10) => {
-  const [debouncedSearchTerm, setDebouncedSearchTerm] =
-    useState<string>(searchTerm);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>(searchTerm);
 
   useDebounce(
     () => {
       setDebouncedSearchTerm(searchTerm);
     },
     300,
-    [searchTerm]
+    [searchTerm],
   );
 
   return useQuery({

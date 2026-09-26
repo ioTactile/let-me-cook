@@ -1,49 +1,49 @@
-import { Unit } from "@/types/enums";
+import { Unit } from '@/types/enums';
 
 export const translateUnit = (unit: Unit) => {
   switch (unit) {
     case Unit.GRAM:
-      return "g";
+      return 'g';
     case Unit.KILOGRAM:
-      return "kg";
+      return 'kg';
     case Unit.LITER:
-      return "L";
+      return 'L';
     case Unit.MILLILITER:
-      return "mL";
+      return 'mL';
     case Unit.PIECE:
-      return "pièce";
+      return 'pièce';
     case Unit.PACK:
-      return "paquet";
+      return 'paquet';
     case Unit.BOTTLE:
-      return "bouteille";
+      return 'bouteille';
     case Unit.BOX:
-      return "boîte";
+      return 'boîte';
     case Unit.BAG:
-      return "sachet";
+      return 'sachet';
     case Unit.CAN:
-      return "boîte de conserve";
+      return 'boîte de conserve';
     case Unit.JAR:
-      return "pot";
+      return 'pot';
     case Unit.BUNCH:
-      return "botte";
+      return 'botte';
     case Unit.HEAD:
-      return "tête";
+      return 'tête';
     case Unit.CLOVE:
-      return "gousse";
+      return 'gousse';
     case Unit.LEAF:
-      return "feuille";
+      return 'feuille';
     case Unit.SLICE:
-      return "tranche";
+      return 'tranche';
     case Unit.CUP:
-      return "tassecup";
+      return 'tassecup';
     case Unit.TABLESPOON:
-      return "cuillère à soupe";
+      return 'cuillère à soupe';
     case Unit.TEASPOON:
-      return "cuillère à café";
+      return 'cuillère à café';
     case Unit.PINCH:
-      return "pincée";
+      return 'pincée';
     case Unit.DASH:
-      return "filet";
+      return 'filet';
     default:
       return unit;
   }

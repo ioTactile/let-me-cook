@@ -1,25 +1,19 @@
-import { useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Image,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { SubmitHandler, useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from 'react';
+import { View, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { useRouter } from 'expo-router';
+import { SubmitHandler, useForm, useWatch, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CreateShoppingListInputs,
   createShoppingListSchema,
-} from "@/app/shopping/_schemas/create-shopping-list";
-import { CreateShoppingListItemInputs } from "@/app/shopping/_schemas/create-shopping-list-item";
-import { useCreateShoppingList } from "@/app/shopping/_mutations/use-create-shopping-list";
-import { useGetFrequentItems } from "@/hooks/use-get-frequent-items";
-import { useSearchItems } from "@/hooks/use-search-items";
-import { Unit } from "@/types/enums";
-import { theme } from "@/constants/Theme";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+} from '@/app/shopping/_schemas/create-shopping-list';
+import { CreateShoppingListItemInputs } from '@/app/shopping/_schemas/create-shopping-list-item';
+import { useCreateShoppingList } from '@/app/shopping/_mutations/use-create-shopping-list';
+import { useGetFrequentItems } from '@/hooks/use-get-frequent-items';
+import { useSearchItems } from '@/hooks/use-search-items';
+import { Unit } from '@/types/enums';
+import { theme } from '@/constants/Theme';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
   ActivityIndicator,
   TextInput,
@@ -28,16 +22,16 @@ import {
   Menu,
   IconButton,
   Text,
-} from "react-native-paper";
-import { translateUnit } from "@/utils/translate-unit";
+} from 'react-native-paper';
+import { translateUnit } from '@/utils/translate-unit';
 
 export default function CreateShoppingListScreen() {
   const router = useRouter();
 
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [newItem, setNewItem] = useState<CreateShoppingListItemInputs>({
-    ingredientName: "",
+    ingredientName: '',
     quantity: 1,
     unit: Unit.PIECE,
   });
@@ -60,18 +54,17 @@ export default function CreateShoppingListScreen() {
     control,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<CreateShoppingListInputs>({
     resolver: zodResolver(createShoppingListSchema),
     defaultValues: {
-      name: "",
+      name: '',
       items: [],
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
-  const items = watch("items");
+  const items = useWatch({ control, name: 'items' }) ?? [];
 
   const onSubmit: SubmitHandler<CreateShoppingListInputs> = (data) => {
     createShoppingList(data, {
@@ -82,24 +75,22 @@ export default function CreateShoppingListScreen() {
   };
 
   const addItem = (ingredientName: string) => {
-    const currentItems = watch("items");
-    setValue("items", [
-      ...currentItems,
+    setValue('items', [
+      ...items,
       {
         ingredientName,
         quantity: 1,
         unit: Unit.PIECE,
       },
     ]);
-    setSearchTerm("");
+    setSearchTerm('');
   };
 
   const addManualItem = () => {
     if (newItem.ingredientName.trim()) {
-      const currentItems = watch("items");
-      setValue("items", [...currentItems, newItem]);
+      setValue('items', [...items, newItem]);
       setNewItem({
-        ingredientName: "",
+        ingredientName: '',
         quantity: 1,
         unit: Unit.PIECE,
       });
@@ -108,24 +99,16 @@ export default function CreateShoppingListScreen() {
   };
 
   const removeItem = (index: number) => {
-    const currentItems = watch("items");
     setValue(
-      "items",
-      currentItems.filter((_, i) => i !== index)
+      'items',
+      items.filter((_, i) => i !== index),
     );
   };
 
-  const updateItem = (
-    index: number,
-    field: keyof CreateShoppingListItemInputs,
-    value: any
-  ) => {
-    const currentItems = watch("items");
+  const updateItem = (index: number, field: keyof CreateShoppingListItemInputs, value: any) => {
     setValue(
-      "items",
-      currentItems.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+      'items',
+      items.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     );
   };
 
@@ -142,11 +125,7 @@ export default function CreateShoppingListScreen() {
         control={control}
         name="name"
         render={({ field }) => (
-          <TextInput
-            placeholder="Nom de la liste"
-            {...field}
-            style={styles.input}
-          />
+          <TextInput placeholder="Nom de la liste" {...field} style={styles.input} />
         )}
       />
       {errors.name && <Text style={styles.error}>{errors.name.message}</Text>}
@@ -157,17 +136,9 @@ export default function CreateShoppingListScreen() {
           placeholder="Rechercher un ingrédient..."
           value={searchTerm}
           onChangeText={setSearchTerm}
-          right={
-            isSearchLoading && (
-              <ActivityIndicator size="small" color={theme.colors.primary} />
-            )
-          }
+          right={isSearchLoading && <ActivityIndicator size="small" color={theme.colors.primary} />}
         />
-        <Button
-          mode="contained"
-          onPress={() => setShowDialog(true)}
-          style={styles.addButton}
-        >
+        <Button mode="contained" onPress={() => setShowDialog(true)} style={styles.addButton}>
           Ajouter manuellement
         </Button>
       </View>
@@ -182,18 +153,11 @@ export default function CreateShoppingListScreen() {
                 onPress={() => addItem(item.ingredientName)}
               >
                 {item.imageUrl && (
-                  <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.itemImage}
-                  />
+                  <Image source={{ uri: item.imageUrl }} style={styles.itemImage} />
                 )}
                 <View style={styles.itemTextContainer}>
-                  <Text style={styles.searchResultText}>
-                    {item.ingredientName}
-                  </Text>
-                  <Text style={styles.searchResultCount}>
-                    ({item.count} fois)
-                  </Text>
+                  <Text style={styles.searchResultText}>{item.ingredientName}</Text>
+                  <Text style={styles.searchResultCount}>({item.count} fois)</Text>
                 </View>
               </TouchableOpacity>
             ))
@@ -215,14 +179,9 @@ export default function CreateShoppingListScreen() {
                   onPress={() => addItem(item.ingredientName)}
                 >
                   {item.imageUrl && (
-                    <Image
-                      source={{ uri: item.imageUrl }}
-                      style={styles.suggestionImage}
-                    />
+                    <Image source={{ uri: item.imageUrl }} style={styles.suggestionImage} />
                   )}
-                  <Text style={styles.suggestionText}>
-                    {item.ingredientName}
-                  </Text>
+                  <Text style={styles.suggestionText}>{item.ingredientName}</Text>
                 </TouchableOpacity>
               ))
             ) : (
@@ -233,15 +192,11 @@ export default function CreateShoppingListScreen() {
       )}
 
       {frequentItemsError && (
-        <Text style={styles.error}>
-          Erreur lors du chargement des ingrédients fréquents
-        </Text>
+        <Text style={styles.error}>Erreur lors du chargement des ingrédients fréquents</Text>
       )}
 
       {searchError && (
-        <Text style={styles.error}>
-          Erreur lors de la recherche d'ingrédients
-        </Text>
+        <Text style={styles.error}>Erreur lors de la recherche d&apos;ingrédients</Text>
       )}
 
       <ScrollView style={styles.itemsList}>
@@ -255,19 +210,14 @@ export default function CreateShoppingListScreen() {
                   style={styles.quantityInput}
                   keyboardType="numeric"
                   value={item.quantity.toString()}
-                  onChangeText={(value) =>
-                    updateItem(index, "quantity", parseFloat(value) || 0)
-                  }
+                  onChangeText={(value) => updateItem(index, 'quantity', parseFloat(value) || 0)}
                 />
                 <View style={styles.unitContainer}>
                   <Text>{translateUnit(item.unit)}</Text>
                 </View>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => removeItem(index)}
-            >
+            <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(index)}>
               <Text style={styles.deleteButtonText}>Supprimer</Text>
             </TouchableOpacity>
           </View>
@@ -280,7 +230,7 @@ export default function CreateShoppingListScreen() {
         disabled={isPending}
       >
         <Text style={styles.submitButtonText}>
-          {isPending ? "Création en cours..." : "Créer la liste"}
+          {isPending ? 'Création en cours...' : 'Créer la liste'}
         </Text>
       </TouchableOpacity>
 
@@ -290,9 +240,7 @@ export default function CreateShoppingListScreen() {
           <TextInput
             label="Nom de l'ingrédient"
             value={newItem.ingredientName}
-            onChangeText={(text) =>
-              setNewItem({ ...newItem, ingredientName: text })
-            }
+            onChangeText={(text) => setNewItem({ ...newItem, ingredientName: text })}
             style={styles.dialogInput}
           />
           <View style={styles.dialogRow}>
@@ -350,8 +298,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
   title: {
@@ -374,8 +322,8 @@ const styles = StyleSheet.create({
     maxHeight: 160,
   },
   searchResultItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.disabled,
@@ -399,7 +347,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   suggestionsTitle: {
-    fontWeight: "600",
+    fontWeight: '600',
     marginBottom: 8,
   },
   suggestionItem: {
@@ -415,15 +363,15 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   suggestionText: {
-    textAlign: "center",
+    textAlign: 'center',
   },
   itemsList: {
     maxHeight: 256,
-    height: "auto",
+    height: 'auto',
   },
   itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.disabled,
@@ -432,11 +380,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemName: {
-    fontWeight: "600",
+    fontWeight: '600',
   },
   quantityContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 8,
   },
   quantityInput: {
@@ -462,11 +410,11 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: theme.colors.background,
-    textAlign: "center",
-    fontWeight: "600",
+    textAlign: 'center',
+    fontWeight: '600',
   },
   noItemsText: {
-    textAlign: "center",
+    textAlign: 'center',
     color: theme.colors.placeholder,
     padding: 16,
   },
@@ -478,8 +426,8 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dialogRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   dialogQuantityInput: {
     flex: 1,

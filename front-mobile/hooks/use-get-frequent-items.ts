@@ -1,6 +1,6 @@
-import { shoppingLists } from "@/services/api.service";
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@/lib/query-keys";
+import { shoppingLists } from '@/services/api.service';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useGetFrequentItems = (limit: number = 10) => {
   return useQuery({

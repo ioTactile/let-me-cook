@@ -1,14 +1,11 @@
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from '@/generated/prisma/client';
 import {
   ShoppingListStatus as PrismaShoppingListStatus,
   ShoppingListItemStatus as PrismaShoppingListItemStatus,
   Unit as PrismaUnit,
-} from "@/generated/prisma/client";
-import {
-  FrequentItem,
-  ShoppingListRepository,
-} from "@/application/ports/shopping-list.repository";
-import { prisma } from "@/infrastructure/prisma/client";
+} from '@/generated/prisma/client';
+import { FrequentItem, ShoppingListRepository } from '@/application/ports/shopping-list.repository';
+import { prisma } from '@/infrastructure/prisma/client';
 import {
   ShoppingList,
   ShoppingListItem,
@@ -16,7 +13,7 @@ import {
   UpdateShoppingListDto,
   CreateShoppingListItemDto,
   UpdateShoppingListItemDto,
-} from "@/types/shopping-list.types";
+} from '@/types/shopping-list.types';
 
 export class PrismaShoppingListRepository implements ShoppingListRepository {
   private toShoppingListItem(prismaItem: any): ShoppingListItem {
@@ -39,10 +36,8 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
       userId: prismaList.userId,
       name: prismaList.name,
       status: prismaList.status,
-      metadata: prismaList.metadata as unknown as ShoppingList["metadata"],
-      items:
-        prismaList.items?.map((item: any) => this.toShoppingListItem(item)) ||
-        [],
+      metadata: prismaList.metadata as unknown as ShoppingList['metadata'],
+      items: prismaList.items?.map((item: any) => this.toShoppingListItem(item)) || [],
       createdAt: prismaList.createdAt,
       updatedAt: prismaList.updatedAt,
     };
@@ -50,17 +45,14 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
 
   async create(
     data: CreateShoppingListDto,
-    itemsWithImages: Array<
-      CreateShoppingListItemDto & { imageUrl: string; status?: string }
-    >
+    itemsWithImages: Array<CreateShoppingListItemDto & { imageUrl: string; status?: string }>,
   ): Promise<ShoppingList> {
     const prismaList = await prisma.$transaction(async (tx) => {
       const list = await tx.shoppingList.create({
         data: {
           user: { connect: { id: data.userId } },
           name: data.name,
-          status: (data.status ||
-            "pending") as PrismaShoppingListStatus,
+          status: (data.status || 'pending') as PrismaShoppingListStatus,
           metadata: data.metadata as Prisma.InputJsonValue,
         },
       });
@@ -71,8 +63,7 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
           ingredientName: item.ingredientName,
           quantity: item.quantity,
           unit: item.unit as PrismaUnit,
-          status: (item.status ||
-            "pending") as PrismaShoppingListItemStatus,
+          status: (item.status || 'pending') as PrismaShoppingListItemStatus,
           imageUrl: item.imageUrl,
         })),
       });
@@ -90,7 +81,7 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
     const prismaLists = await prisma.shoppingList.findMany({
       where: { userId },
       include: { items: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
     return prismaLists.map((list) => this.toShoppingList(list));
   }
@@ -103,10 +94,7 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
     return prismaList ? this.toShoppingList(prismaList) : null;
   }
 
-  async update(
-    id: string,
-    data: UpdateShoppingListDto
-  ): Promise<ShoppingList> {
+  async update(id: string, data: UpdateShoppingListDto): Promise<ShoppingList> {
     const prismaList = await prisma.shoppingList.update({
       where: { id },
       data: {
@@ -128,17 +116,14 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
     });
   }
 
-  async addItem(
-    data: CreateShoppingListItemDto & { imageUrl: string }
-  ): Promise<ShoppingListItem> {
+  async addItem(data: CreateShoppingListItemDto & { imageUrl: string }): Promise<ShoppingListItem> {
     const prismaItem = await prisma.shoppingListItem.create({
       data: {
         shoppingList: { connect: { id: data.shoppingListId } },
         ingredientName: data.ingredientName,
         quantity: data.quantity,
         unit: data.unit as PrismaUnit,
-        status: (data.status ||
-          "pending") as PrismaShoppingListItemStatus,
+        status: (data.status || 'pending') as PrismaShoppingListItemStatus,
         imageUrl: data.imageUrl,
       },
     });
@@ -152,10 +137,7 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
     return prismaItem ? this.toShoppingListItem(prismaItem) : null;
   }
 
-  async updateItem(
-    id: string,
-    data: UpdateShoppingListItemDto
-  ): Promise<ShoppingListItem> {
+  async updateItem(id: string, data: UpdateShoppingListItemDto): Promise<ShoppingListItem> {
     const prismaItem = await prisma.shoppingListItem.update({
       where: { id },
       data: {
@@ -180,17 +162,14 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
     return items.map((item) => this.toShoppingListItem(item));
   }
 
-  async getFrequentItems(
-    userId: string,
-    limit: number
-  ): Promise<FrequentItem[]> {
+  async getFrequentItems(userId: string, limit: number): Promise<FrequentItem[]> {
     const frequentItems = await prisma.shoppingListItem.groupBy({
-      by: ["ingredientName"],
+      by: ['ingredientName'],
       where: {
         shoppingList: { userId },
       },
       _count: { ingredientName: true },
-      orderBy: { _count: { ingredientName: "desc" } },
+      orderBy: { _count: { ingredientName: 'desc' } },
       take: limit,
     });
 
@@ -198,12 +177,9 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
       frequentItems.map(async (item) => {
         const lastItem = await prisma.shoppingListItem.findFirst({
           where: {
-            AND: [
-              { ingredientName: item.ingredientName },
-              { shoppingList: { userId } },
-            ],
+            AND: [{ ingredientName: item.ingredientName }, { shoppingList: { userId } }],
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           select: { imageUrl: true },
         });
 
@@ -212,30 +188,26 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
           count: item._count.ingredientName,
           imageUrl: lastItem?.imageUrl || null,
         };
-      })
+      }),
     );
   }
 
-  async searchItems(
-    userId: string,
-    searchTerm: string,
-    limit: number
-  ): Promise<FrequentItem[]> {
+  async searchItems(userId: string, searchTerm: string, limit: number): Promise<FrequentItem[]> {
     const frequentItems = await prisma.shoppingListItem.groupBy({
-      by: ["ingredientName"],
+      by: ['ingredientName'],
       where: {
         AND: [
           { shoppingList: { userId } },
           {
             ingredientName: {
               contains: searchTerm,
-              mode: "insensitive",
+              mode: 'insensitive',
             },
           },
         ],
       },
       _count: { ingredientName: true },
-      orderBy: { _count: { ingredientName: "desc" } },
+      orderBy: { _count: { ingredientName: 'desc' } },
       take: limit,
     });
 
@@ -243,12 +215,9 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
       frequentItems.map(async (item) => {
         const lastItem = await prisma.shoppingListItem.findFirst({
           where: {
-            AND: [
-              { ingredientName: item.ingredientName },
-              { shoppingList: { userId } },
-            ],
+            AND: [{ ingredientName: item.ingredientName }, { shoppingList: { userId } }],
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
           select: { imageUrl: true },
         });
 
@@ -257,7 +226,7 @@ export class PrismaShoppingListRepository implements ShoppingListRepository {
           count: item._count.ingredientName,
           imageUrl: lastItem?.imageUrl || null,
         };
-      })
+      }),
     );
   }
 }

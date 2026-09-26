@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface ConfirmationDialogState {
   isVisible: boolean;
@@ -9,15 +9,11 @@ interface ConfirmationDialogState {
   hideDialog: () => void;
 }
 
-export const useConfirmationDialogStore = create<ConfirmationDialogState>(
-  (set) => ({
-    isVisible: false,
-    title: "",
-    message: "",
-    onConfirm: null,
-    showDialog: (title, message, onConfirm) =>
-      set({ isVisible: true, title, message, onConfirm }),
-    hideDialog: () =>
-      set({ isVisible: false, title: "", message: "", onConfirm: null }),
-  })
-);
+export const useConfirmationDialogStore = create<ConfirmationDialogState>((set) => ({
+  isVisible: false,
+  title: '',
+  message: '',
+  onConfirm: null,
+  showDialog: (title, message, onConfirm) => set({ isVisible: true, title, message, onConfirm }),
+  hideDialog: () => set({ isVisible: false, title: '', message: '', onConfirm: null }),
+}));

@@ -1,13 +1,13 @@
-import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import { Text, useTheme, Card, IconButton, Divider } from "react-native-paper";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useGetAppliance } from "@/hooks/use-get-appliance";
-import { useSnackbarStore } from "@/stores/snackbar.store";
-import { useDeleteAppliance } from "@/app/appliance/_mutations/use-delete-appliance";
-import { useConfirmationDialogStore } from "@/stores/confirmation-dialog.store";
-import { theme } from "@/constants/Theme";
+import React from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { Text, useTheme, Card, IconButton, Divider } from 'react-native-paper';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useGetAppliance } from '@/hooks/use-get-appliance';
+import { useSnackbarStore } from '@/stores/snackbar.store';
+import { useDeleteAppliance } from '@/app/appliance/_mutations/use-delete-appliance';
+import { useConfirmationDialogStore } from '@/stores/confirmation-dialog.store';
+import { theme } from '@/constants/Theme';
 
 export default function ApplianceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,20 +24,20 @@ export default function ApplianceDetailScreen() {
   const handleDelete = () => {
     deleteAppliance(id, {
       onSuccess: () => {
-        showSnackbar("Appareil supprimé avec succès", "success");
+        showSnackbar('Appareil supprimé avec succès', 'success');
         router.back();
       },
       onError: () => {
-        showSnackbar("Erreur lors de la suppression", "error");
+        showSnackbar('Erreur lors de la suppression', 'error');
       },
     });
   };
 
   const handleDeleteClick = () => {
     showDialog(
-      "Confirmer la suppression",
-      "Êtes-vous sûr de vouloir supprimer cet appareil ?",
-      handleDelete
+      'Confirmer la suppression',
+      'Êtes-vous sûr de vouloir supprimer cet appareil ?',
+      handleDelete,
     );
   };
 
@@ -48,9 +48,7 @@ export default function ApplianceDetailScreen() {
   if (error || !appliance) {
     return (
       <View style={styles.container}>
-        <Text style={styles.error}>
-          Erreur lors du chargement de l'appareil
-        </Text>
+        <Text style={styles.error}>Erreur lors du chargement de l&apos;appareil</Text>
       </View>
     );
   }
@@ -61,11 +59,7 @@ export default function ApplianceDetailScreen() {
         <Card.Content>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <IconButton
-                icon="arrow-left"
-                size={24}
-                onPress={() => router.back()}
-              />
+              <IconButton icon="arrow-left" size={24} onPress={() => router.back()} />
               <Text variant="headlineMedium" style={styles.title}>
                 {appliance.name}
               </Text>
@@ -91,17 +85,13 @@ export default function ApplianceDetailScreen() {
             )}
 
             <View style={styles.detailRow}>
-              <Text variant="titleMedium">Date d'ajout</Text>
-              <Text variant="bodyLarge">
-                {new Date(appliance.createdAt).toLocaleDateString()}
-              </Text>
+              <Text variant="titleMedium">Date d&apos;ajout</Text>
+              <Text variant="bodyLarge">{new Date(appliance.createdAt).toLocaleDateString()}</Text>
             </View>
 
             <View style={styles.detailRow}>
               <Text variant="titleMedium">Dernière mise à jour</Text>
-              <Text variant="bodyLarge">
-                {new Date(appliance.updatedAt).toLocaleDateString()}
-              </Text>
+              <Text variant="bodyLarge">{new Date(appliance.updatedAt).toLocaleDateString()}</Text>
             </View>
           </View>
         </Card.Content>
@@ -119,14 +109,14 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
   headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
   title: {
@@ -139,13 +129,13 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   error: {
     color: theme.colors.error,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
 });

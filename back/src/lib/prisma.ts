@@ -1,1 +1,1 @@
-export { prisma } from "@/infrastructure/prisma/client";
+export { prisma } from '@/infrastructure/prisma/client';

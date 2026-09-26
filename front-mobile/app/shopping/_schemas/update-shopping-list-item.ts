@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { ShoppingListItemStatus, Unit } from "@/types/enums";
+import { z } from 'zod';
+import { ShoppingListItemStatus, Unit } from '@/types/enums';
 
 export const updateShoppingListItemSchema = z.object({
   items: z.array(
@@ -8,10 +8,8 @@ export const updateShoppingListItemSchema = z.object({
       status: z.enum(ShoppingListItemStatus).optional(),
       quantity: z.number().optional(),
       unit: z.enum(Unit).optional(),
-    })
+    }),
   ),
 });
 
-export type UpdateShoppingListItemInputs = z.infer<
-  typeof updateShoppingListItemSchema
->;
+export type UpdateShoppingListItemInputs = z.infer<typeof updateShoppingListItemSchema>;

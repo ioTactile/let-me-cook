@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from "express";
-import { cachePort } from "@/infrastructure/container";
+import { Request, Response, NextFunction } from 'express';
+import { cachePort } from '@/infrastructure/container';
 
 export const cacheMiddleware = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
-  if (req.method !== "GET") {
+  if (req.method !== 'GET') {
     next();
     return;
   }
@@ -29,22 +29,18 @@ export const cacheMiddleware = async (
 
     next();
   } catch (error) {
-    console.error("Cache error:", error);
+    console.error('Cache error:', error);
     next();
   }
 };
 
-export const invalidateCache = async (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-) => {
+export const invalidateCache = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     const pattern = `cache:${req.baseUrl}*`;
     await cachePort.deleteByPattern(pattern);
     next();
   } catch (error) {
-    console.error("Cache invalidation error:", error);
+    console.error('Cache invalidation error:', error);
     next();
   }
 };

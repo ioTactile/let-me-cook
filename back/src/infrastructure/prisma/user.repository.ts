@@ -1,9 +1,5 @@
-import {
-  UserPublic,
-  UserRecord,
-  UserRepository,
-} from "@/application/ports/user.repository";
-import { prisma } from "@/infrastructure/prisma/client";
+import { UserPublic, UserRecord, UserRepository } from '@/application/ports/user.repository';
+import { prisma } from '@/infrastructure/prisma/client';
 
 export class PrismaUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<UserRecord | null> {
@@ -30,11 +26,7 @@ export class PrismaUserRepository implements UserRepository {
     return user !== null;
   }
 
-  async create(data: {
-    email: string;
-    password: string;
-    username: string;
-  }): Promise<UserRecord> {
+  async create(data: { email: string; password: string; username: string }): Promise<UserRecord> {
     return prisma.user.create({ data });
   }
 }

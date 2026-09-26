@@ -1,6 +1,6 @@
-import OpenAI from "openai";
-import { AiPort } from "@/application/ports/ai.port";
-import { AppError } from "@/domain/errors/app-error";
+import OpenAI from 'openai';
+import { AiPort } from '@/application/ports/ai.port';
+import { AppError } from '@/domain/errors/app-error';
 
 export class OpenAIAdapter implements AiPort {
   private client: OpenAI | null = null;
@@ -25,9 +25,9 @@ export class OpenAIAdapter implements AiPort {
     try {
       const client = this.ensureInitialized();
       const response = await client.embeddings.create({
-        model: "text-embedding-3-small",
+        model: 'text-embedding-3-small',
         input: text,
-        encoding_format: "float",
+        encoding_format: 'float',
       });
       return response.data[0].embedding;
     } catch {
@@ -50,14 +50,13 @@ export class OpenAIAdapter implements AiPort {
       `;
 
       const response = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content:
-              "Vous êtes un expert en nutrition et en analyse d'ingrédients.",
+            role: 'system',
+            content: "Vous êtes un expert en nutrition et en analyse d'ingrédients.",
           },
-          { role: "user", content: prompt },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.5,
         max_tokens: 1000,
@@ -65,21 +64,21 @@ export class OpenAIAdapter implements AiPort {
 
       return response.choices[0].message.content;
     } catch (error) {
-      console.log("error analyze ingredient", error);
+      console.log('error analyze ingredient', error);
       throw new AppError("Erreur lors de l'analyse de l'ingrédient", 500);
     }
   }
 
   async generateRecipeSuggestions(
     ingredients: string[],
-    appliances: string[]
+    appliances: string[],
   ): Promise<string | null> {
     try {
       const client = this.ensureInitialized();
       const prompt = `
         En tant qu'expert culinaire, suggérez des recettes possibles avec les ingrédients suivants:
-        Ingrédients disponibles: ${ingredients.join(", ")}
-        Appareils disponibles: ${appliances.join(", ")}
+        Ingrédients disponibles: ${ingredients.join(', ')}
+        Appareils disponibles: ${appliances.join(', ')}
         
         Pour chaque recette, fournissez:
         1. Un titre
@@ -90,14 +89,14 @@ export class OpenAIAdapter implements AiPort {
       `;
 
       const response = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
+            role: 'system',
             content:
-              "Vous êtes un expert culinaire qui aide à créer des recettes avec les ingrédients disponibles.",
+              'Vous êtes un expert culinaire qui aide à créer des recettes avec les ingrédients disponibles.',
           },
-          { role: "user", content: prompt },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.7,
         max_tokens: 1000,
@@ -105,11 +104,8 @@ export class OpenAIAdapter implements AiPort {
 
       return response.choices[0].message.content;
     } catch (error) {
-      console.log("error generate recipe suggestions", error);
-      throw new AppError(
-        "Erreur lors de la génération des suggestions de recettes",
-        500
-      );
+      console.log('error generate recipe suggestions', error);
+      throw new AppError('Erreur lors de la génération des suggestions de recettes', 500);
     }
   }
 
@@ -127,14 +123,13 @@ export class OpenAIAdapter implements AiPort {
       `;
 
       const response = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content:
-              "Vous êtes un expert en nutrition et en analyse culinaire.",
+            role: 'system',
+            content: 'Vous êtes un expert en nutrition et en analyse culinaire.',
           },
-          { role: "user", content: prompt },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.5,
         max_tokens: 800,
@@ -142,7 +137,7 @@ export class OpenAIAdapter implements AiPort {
 
       return response.choices[0].message.content;
     } catch (error) {
-      console.log("error analyze recipe", error);
+      console.log('error analyze recipe', error);
       throw new AppError("Erreur lors de l'analyse de la recette", 500);
     }
   }
@@ -162,14 +157,13 @@ export class OpenAIAdapter implements AiPort {
       `;
 
       const response = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
           {
-            role: "system",
-            content:
-              "Vous êtes un assistant qui aide à créer des listes de courses précises.",
+            role: 'system',
+            content: 'Vous êtes un assistant qui aide à créer des listes de courses précises.',
           },
-          { role: "user", content: prompt },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.3,
         max_tokens: 500,
@@ -177,11 +171,8 @@ export class OpenAIAdapter implements AiPort {
 
       return response.choices[0].message.content;
     } catch (error) {
-      console.log("error generate shopping list", error);
-      throw new AppError(
-        "Erreur lors de la génération de la liste de courses",
-        500
-      );
+      console.log('error generate shopping list', error);
+      throw new AppError('Erreur lors de la génération de la liste de courses', 500);
     }
   }
 
@@ -203,14 +194,14 @@ export class OpenAIAdapter implements AiPort {
       `;
 
       const response = await client.chat.completions.create({
-        model: "gpt-4",
+        model: 'gpt-4',
         messages: [
           {
-            role: "system",
+            role: 'system',
             content:
               "Vous êtes un assistant spécialisé dans la recherche d'images culinaires sur Unsplash. Vous denez toujours répondre avec une URL directe d'image Unsplash, sans texte supplémentaire. L'image doit être pertinente et de haute qualité.",
           },
-          { role: "user", content: prompt },
+          { role: 'user', content: prompt },
         ],
         temperature: 0.3,
         max_tokens: 200,
@@ -221,21 +212,15 @@ export class OpenAIAdapter implements AiPort {
         throw new AppError("Impossible de générer une URL d'image valide", 500);
       }
 
-      if (!content.startsWith("https://images.unsplash.com/photo-")) {
-        throw new AppError(
-          "L'URL générée n'est pas une URL Unsplash valide",
-          500
-        );
+      if (!content.startsWith('https://images.unsplash.com/photo-')) {
+        throw new AppError("L'URL générée n'est pas une URL Unsplash valide", 500);
       }
 
       return content;
     } catch (error) {
-      console.log("error generate ingredient image url", error);
+      console.log('error generate ingredient image url', error);
       if (error instanceof AppError) throw error;
-      throw new AppError(
-        "Erreur lors de la génération de l'URL de l'image",
-        500
-      );
+      throw new AppError("Erreur lors de la génération de l'URL de l'image", 500);
     }
   }
 }

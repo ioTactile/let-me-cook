@@ -1,29 +1,29 @@
-import { Router } from "express";
-import { validateRequest } from "@/middleware/validation.middleware";
-import { aiController } from "@/controllers/ai.controller";
-import { aiValidators } from "@/validators/ai.validator";
+import { Router } from 'express';
+import { validateRequest } from '@/middleware/validation.middleware';
+import { aiController } from '@/controllers/ai.controller';
+import { aiValidators } from '@/validators/ai.validator';
 
 const router: Router = Router();
 
 // Route pour générer des suggestions de recettes
 router.post(
-  "/suggest-recipes",
+  '/suggest-recipes',
   [...aiValidators.suggestRecipes, validateRequest],
-  aiController.generateRecipeSuggestions
+  aiController.generateRecipeSuggestions,
 );
 
 // Route pour analyser une recette
 router.post(
-  "/analyze-recipe",
+  '/analyze-recipe',
   [...aiValidators.analyzeRecipe, validateRequest],
-  aiController.analyzeRecipe
+  aiController.analyzeRecipe,
 );
 
 // Route pour générer une liste de courses
 router.post(
-  "/generate-shopping-list",
+  '/generate-shopping-list',
   [...aiValidators.generateShoppingList, validateRequest],
-  aiController.generateShoppingList
+  aiController.generateShoppingList,
 );
 
 export const aiRoutes = router;

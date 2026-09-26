@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { appliances } from "@/services/api.service";
-import { queryKeys } from "@/lib/query-keys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { appliances } from '@/services/api.service';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useDeleteAppliance = () => {
   const queryClient = useQueryClient();

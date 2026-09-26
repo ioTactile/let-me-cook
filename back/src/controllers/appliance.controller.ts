@@ -1,14 +1,10 @@
-import { Response, NextFunction } from "express";
-import { applianceService } from "@/infrastructure/container";
-import { AuthenticatedRequest } from "@/types/express.types";
-import { routeParam } from "@/utils/route-param";
+import { Response, NextFunction } from 'express';
+import { applianceService } from '@/infrastructure/container';
+import { AuthenticatedRequest } from '@/types/express.types';
+import { routeParam } from '@/utils/route-param';
 
 export const applianceController = {
-  async getAppliances(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async getAppliances(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const appliances = await applianceService.getAppliances(req.user.id);
       res.json(appliances);
@@ -20,14 +16,12 @@ export const applianceController = {
   async getApplianceById(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const appliance = await applianceService.getApplianceById(
-        routeParam(req.params.id)
-      );
+      const appliance = await applianceService.getApplianceById(routeParam(req.params.id));
       if (!appliance) {
-        res.status(404).json({ message: "Appareil non trouvé" });
+        res.status(404).json({ message: 'Appareil non trouvé' });
         return;
       }
       res.json(appliance);
@@ -39,7 +33,7 @@ export const applianceController = {
   async createAppliance(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const appliance = await applianceService.createAppliance({
@@ -55,13 +49,10 @@ export const applianceController = {
   async updateAppliance(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const appliance = await applianceService.updateAppliance(
-        routeParam(req.params.id),
-        req.body
-      );
+      const appliance = await applianceService.updateAppliance(routeParam(req.params.id), req.body);
       res.json(appliance);
     } catch (error) {
       next(error);
@@ -71,7 +62,7 @@ export const applianceController = {
   async deleteAppliance(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       await applianceService.deleteAppliance(routeParam(req.params.id));

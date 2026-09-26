@@ -1,8 +1,5 @@
-import { View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { View } from 'react-native';
 
 export default function RecipeDetailScreen() {
-  const { id } = useLocalSearchParams();
-
-  return <View>{/* Contenu à implémenter */}</View>;
+  return <View>{/* TODO: implement content */}</View>;
 }

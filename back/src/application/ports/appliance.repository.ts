@@ -1,8 +1,4 @@
-import {
-  Appliance,
-  CreateApplianceDto,
-  UpdateApplianceDto,
-} from "@/types/appliance.types";
+import { Appliance, CreateApplianceDto, UpdateApplianceDto } from '@/types/appliance.types';
 
 export interface ApplianceRepository {
   create(data: CreateApplianceDto): Promise<Appliance>;

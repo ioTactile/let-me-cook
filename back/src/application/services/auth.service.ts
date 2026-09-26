@@ -1,12 +1,12 @@
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { SessionPort } from "@/application/ports/session.port";
-import { UserRepository } from "@/application/ports/user.repository";
-import { AppError } from "@/domain/errors/app-error";
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { SessionPort } from '@/application/ports/session.port';
+import { UserRepository } from '@/application/ports/user.repository';
+import { AppError } from '@/domain/errors/app-error';
 
 export class AuthService {
   private readonly JWT_SECRET = process.env.JWT_SECRET!;
-  private readonly JWT_EXPIRES_IN = "7d";
+  private readonly JWT_EXPIRES_IN = '7d';
 
   constructor(private readonly userRepository: UserRepository) {}
 
@@ -16,15 +16,13 @@ export class AuthService {
       password: string;
       username: string;
     },
-    session: SessionPort
+    session: SessionPort,
   ) {
     try {
-      const existingUser = await this.userRepository.findByEmail(
-        userData.email
-      );
+      const existingUser = await this.userRepository.findByEmail(userData.email);
 
       if (existingUser) {
-        throw new AppError("Un utilisateur avec cet email existe déjà", 400);
+        throw new AppError('Un utilisateur avec cet email existe déjà', 400);
       }
 
       const hashedPassword = await bcrypt.hash(userData.password, 10);
@@ -53,24 +51,18 @@ export class AuthService {
     }
   }
 
-  async login(
-    credentials: { email: string; password: string },
-    session: SessionPort
-  ) {
+  async login(credentials: { email: string; password: string }, session: SessionPort) {
     try {
       const user = await this.userRepository.findByEmail(credentials.email);
 
       if (!user) {
-        throw new AppError("Email ou mot de passe incorrect", 401);
+        throw new AppError('Email ou mot de passe incorrect', 401);
       }
 
-      const isPasswordValid = await bcrypt.compare(
-        credentials.password,
-        user.password
-      );
+      const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
       if (!isPasswordValid) {
-        throw new AppError("Email ou mot de passe incorrect", 401);
+        throw new AppError('Email ou mot de passe incorrect', 401);
       }
 
       const token = this.generateToken(user.id);
@@ -88,7 +80,7 @@ export class AuthService {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError("Erreur lors de la connexion", 500);
+      throw new AppError('Erreur lors de la connexion', 500);
     }
   }
 
@@ -99,7 +91,7 @@ export class AuthService {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError("Erreur lors de la déconnexion", 500);
+      throw new AppError('Erreur lors de la déconnexion', 500);
     }
   }
 
@@ -114,7 +106,7 @@ export class AuthService {
       const user = await this.userRepository.findById(userId);
 
       if (!user) {
-        throw new AppError("Utilisateur non trouvé", 404);
+        throw new AppError('Utilisateur non trouvé', 404);
       }
 
       return user;
@@ -122,10 +114,7 @@ export class AuthService {
       if (error instanceof AppError) {
         throw error;
       }
-      throw new AppError(
-        "Erreur lors de la récupération de l'utilisateur",
-        500
-      );
+      throw new AppError("Erreur lors de la récupération de l'utilisateur", 500);
     }
   }
 }

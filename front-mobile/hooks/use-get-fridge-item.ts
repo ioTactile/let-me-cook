@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
-import { fridge } from "@/services/api.service";
-import { FridgeItem } from "@/types";
-import { queryKeys } from "@/lib/query-keys";
+import { useQuery } from '@tanstack/react-query';
+import { fridge } from '@/services/api.service';
+import { FridgeItem } from '@/types';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useGetFridgeItem = (id: string) => {
   return useQuery<FridgeItem>({

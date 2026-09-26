@@ -1,18 +1,11 @@
-import { Request, Response, NextFunction } from "express";
-import { aiPort } from "@/infrastructure/container";
+import { Request, Response, NextFunction } from 'express';
+import { aiPort } from '@/infrastructure/container';
 
 export const aiController = {
-  async generateRecipeSuggestions(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) {
+  async generateRecipeSuggestions(req: Request, res: Response, next: NextFunction) {
     try {
       const { ingredients, appliances } = req.body;
-      const suggestions = await aiPort.generateRecipeSuggestions(
-        ingredients,
-        appliances
-      );
+      const suggestions = await aiPort.generateRecipeSuggestions(ingredients, appliances);
       res.json({ suggestions });
     } catch (error) {
       next(error);

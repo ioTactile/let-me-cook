@@ -1,4 +1,4 @@
-import type { Request } from "express";
+import type { Request } from 'express';
 
 declare global {
   // Augmentation Express Request — namespace requis par @types/express

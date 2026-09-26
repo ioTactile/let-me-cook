@@ -1,12 +1,12 @@
-import React from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import { router } from "expo-router";
+import React from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { router } from 'expo-router';
 
-import { FAB, useTheme, Text, Card } from "react-native-paper";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { FAB, useTheme, Text, Card } from 'react-native-paper';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
-import { useGetFridgeItems } from "@/hooks/use-get-fridge-items";
-import { theme } from "@/constants/Theme";
+import { useGetFridgeItems } from '@/hooks/use-get-fridge-items';
+import { theme } from '@/constants/Theme';
 
 export default function FridgeScreen() {
   const theme = useTheme();
@@ -32,9 +32,7 @@ export default function FridgeScreen() {
         renderItem={({ item }) => (
           <Card
             style={styles.card}
-            onPress={() =>
-              router.push({ pathname: "/fridge/[id]", params: { id: item.id } })
-            }
+            onPress={() => router.push({ pathname: '/fridge/[id]', params: { id: item.id } })}
           >
             <Card.Content>
               <Text variant="titleLarge">{item.ingredientName}</Text>
@@ -44,9 +42,7 @@ export default function FridgeScreen() {
                 </Text>
                 <Text variant="bodySmall" style={styles.expirationDate}>
                   {item.expirationDate
-                    ? `Expire le ${new Date(
-                        item.expirationDate
-                      ).toLocaleDateString()}`
+                    ? `Expire le ${new Date(item.expirationDate).toLocaleDateString()}`
                     : "Date d'expiration non renseignée"}
                 </Text>
               </View>
@@ -59,7 +55,7 @@ export default function FridgeScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/fridge/new")}
+        onPress={() => router.push('/fridge/new')}
       />
     </View>
   );
@@ -84,14 +80,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
   },
   error: {
     color: theme.colors.error,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
 });

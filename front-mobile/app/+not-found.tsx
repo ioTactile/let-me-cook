@@ -1,17 +1,17 @@
-import { theme } from "@/constants/Theme";
-import { Link, Stack } from "expo-router";
-import { StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
+import { theme } from '@/constants/Theme';
+import { Link, Stack } from 'expo-router';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
 
 export default function NotFoundScreen() {
   return (
     <>
-      <Stack.Screen options={{ title: "Oops!" }} />
+      <Stack.Screen options={{ title: 'Oops!' }} />
       <View style={styles.container}>
-        <Text style={styles.title}>Cette page n'existe pas.</Text>
+        <Text style={styles.title}>Cette page n&apos;existe pas.</Text>
 
         <Link href="/" style={styles.link}>
-          <Text style={styles.linkText}>Retour à l'accueil</Text>
+          <Text style={styles.linkText}>Retour à l&apos;accueil</Text>
         </Link>
       </View>
     </>
@@ -21,13 +21,13 @@ export default function NotFoundScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
   title: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   link: {
     marginTop: 15,

@@ -1,6 +1,7 @@
 {
   "name": "let-me-cook",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "prepare": "husky"
   },

@@ -1,8 +1,8 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { router } from "expo-router";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 
-import { FAB, useTheme } from "react-native-paper";
+import { FAB, useTheme } from 'react-native-paper';
 
 export default function RecipesScreen() {
   const theme = useTheme();
@@ -14,7 +14,7 @@ export default function RecipesScreen() {
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() =>
           router.push({
-            pathname: "/recipe/new",
+            pathname: '/recipe/new',
           })
         }
       />
@@ -25,20 +25,20 @@ export default function RecipesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   list: {
     padding: 16,
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
   },
   error: {
-    color: "red",
-    textAlign: "center",
+    color: 'red',
+    textAlign: 'center',
     marginTop: 20,
   },
 });

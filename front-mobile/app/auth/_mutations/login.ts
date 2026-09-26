@@ -1,9 +1,9 @@
-import { useMutation } from "@tanstack/react-query";
-import { auth } from "@/services/api.service";
-import { LoginInputs } from "@/app/auth/_schemas/login";
-import { useAuth } from "@/stores/auth.store";
-import { router } from "expo-router";
-import { useSnackbarStore } from "@/stores/snackbar.store";
+import { useMutation } from '@tanstack/react-query';
+import { auth } from '@/services/api.service';
+import { LoginInputs } from '@/app/auth/_schemas/login';
+import { useAuth } from '@/stores/auth.store';
+import { router } from 'expo-router';
+import { useSnackbarStore } from '@/stores/snackbar.store';
 
 export const useLogin = () => {
   const { login } = useAuth();
@@ -16,10 +16,10 @@ export const useLogin = () => {
       return response;
     },
     onSuccess: () => {
-      router.replace("/");
+      router.replace('/');
     },
     onError: (error) => {
-      showSnackbar(error.message, "error");
+      showSnackbar(error.message, 'error');
     },
   });
 };

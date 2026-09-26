@@ -1,6 +1,6 @@
-import { Tabs } from "expo-router";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useTheme } from "react-native-paper";
+import { Tabs } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from 'react-native-paper';
 
 export default function TabsLayout() {
   const theme = useTheme();
@@ -16,7 +16,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="recipes"
         options={{
-          title: "Recettes",
+          title: 'Recettes',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="food" size={size} color={color} />
           ),
@@ -25,7 +25,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="fridge"
         options={{
-          title: "Frigo",
+          title: 'Frigo',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="fridge" size={size} color={color} />
           ),
@@ -34,20 +34,16 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="appliances"
         options={{
-          title: "Appareils",
+          title: 'Appareils',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="microwave"
-              size={size}
-              color={color}
-            />
+            <MaterialCommunityIcons name="microwave" size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
         name="shopping"
         options={{
-          title: "Courses",
+          title: 'Courses',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="cart" size={size} color={color} />
           ),

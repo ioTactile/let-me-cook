@@ -1,16 +1,10 @@
-import type { Prisma } from "@/generated/prisma/client";
-import { FridgeRepository } from "@/application/ports/fridge.repository";
-import { prisma } from "@/infrastructure/prisma/client";
-import {
-  FridgeItem,
-  CreateFridgeItemDto,
-  UpdateFridgeItemDto,
-} from "@/types/fridge.types";
+import type { Prisma } from '@/generated/prisma/client';
+import { FridgeRepository } from '@/application/ports/fridge.repository';
+import { prisma } from '@/infrastructure/prisma/client';
+import { FridgeItem, CreateFridgeItemDto, UpdateFridgeItemDto } from '@/types/fridge.types';
 
 export class PrismaFridgeRepository implements FridgeRepository {
-  private toFridgeItem(
-    prismaItem: Prisma.FridgeItemGetPayload<object>
-  ): FridgeItem {
+  private toFridgeItem(prismaItem: Prisma.FridgeItemGetPayload<object>): FridgeItem {
     return {
       id: prismaItem.id,
       userId: prismaItem.userId,
@@ -18,15 +12,13 @@ export class PrismaFridgeRepository implements FridgeRepository {
       quantity: prismaItem.quantity,
       unit: prismaItem.unit,
       expirationDate: prismaItem.expirationDate,
-      metadata: prismaItem.metadata as unknown as FridgeItem["metadata"],
+      metadata: prismaItem.metadata as unknown as FridgeItem['metadata'],
       createdAt: prismaItem.createdAt,
       updatedAt: prismaItem.updatedAt,
     };
   }
 
-  async create(
-    data: CreateFridgeItemDto & { metadata?: unknown }
-  ): Promise<FridgeItem> {
+  async create(data: CreateFridgeItemDto & { metadata?: unknown }): Promise<FridgeItem> {
     const prismaItem = await prisma.fridgeItem.create({
       data: {
         user: { connect: { id: data.userId } },
@@ -43,7 +35,7 @@ export class PrismaFridgeRepository implements FridgeRepository {
   async findAllByUser(userId: string): Promise<FridgeItem[]> {
     const prismaItems = await prisma.fridgeItem.findMany({
       where: { userId },
-      orderBy: { expirationDate: "asc" },
+      orderBy: { expirationDate: 'asc' },
     });
     return prismaItems.map((item) => this.toFridgeItem(item));
   }
@@ -71,10 +63,7 @@ export class PrismaFridgeRepository implements FridgeRepository {
     await prisma.fridgeItem.delete({ where: { id } });
   }
 
-  async findExpiring(
-    userId: string,
-    daysThreshold: number
-  ): Promise<FridgeItem[]> {
+  async findExpiring(userId: string, daysThreshold: number): Promise<FridgeItem[]> {
     const items = await prisma.fridgeItem.findMany({
       where: {
         userId,
@@ -83,7 +72,7 @@ export class PrismaFridgeRepository implements FridgeRepository {
           gte: new Date(),
         },
       },
-      orderBy: { expirationDate: "asc" },
+      orderBy: { expirationDate: 'asc' },
     });
     return items.map((item) => this.toFridgeItem(item));
   }

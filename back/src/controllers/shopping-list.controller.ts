@@ -1,14 +1,14 @@
-import { Response, NextFunction } from "express";
-import { ShoppingListStatus } from "@/domain/enums";
-import { shoppingListService } from "@/infrastructure/container";
-import { AuthenticatedRequest } from "@/types/express.types";
-import { routeParam } from "@/utils/route-param";
+import { Response, NextFunction } from 'express';
+import { ShoppingListStatus } from '@/domain/enums';
+import { shoppingListService } from '@/infrastructure/container';
+import { AuthenticatedRequest } from '@/types/express.types';
+import { routeParam } from '@/utils/route-param';
 
 export const shoppingListController = {
   async getShoppingLists(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const lists = await shoppingListService.getShoppingLists(req.user.id);
@@ -21,14 +21,12 @@ export const shoppingListController = {
   async getShoppingListById(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const list = await shoppingListService.getShoppingListById(
-        routeParam(req.params.id)
-      );
+      const list = await shoppingListService.getShoppingListById(routeParam(req.params.id));
       if (!list) {
-        res.status(404).json({ message: "Liste non trouvée" });
+        res.status(404).json({ message: 'Liste non trouvée' });
         return;
       }
       res.json(list);
@@ -40,7 +38,7 @@ export const shoppingListController = {
   async createShoppingList(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const list = await shoppingListService.createShoppingList({
@@ -56,12 +54,12 @@ export const shoppingListController = {
   async updateShoppingList(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const list = await shoppingListService.updateShoppingList(
         routeParam(req.params.id),
-        req.body
+        req.body,
       );
       res.json(list);
     } catch (error) {
@@ -72,7 +70,7 @@ export const shoppingListController = {
   async deleteShoppingList(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       await shoppingListService.deleteShoppingList(routeParam(req.params.id));
@@ -85,7 +83,7 @@ export const shoppingListController = {
   async addShoppingListItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const item = await shoppingListService.addShoppingListItem({
@@ -101,12 +99,12 @@ export const shoppingListController = {
   async updateShoppingListItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const item = await shoppingListService.updateShoppingListItem(
         routeParam(req.params.itemId),
-        req.body
+        req.body,
       );
       res.json(item);
     } catch (error) {
@@ -117,12 +115,10 @@ export const shoppingListController = {
   async deleteShoppingListItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      await shoppingListService.deleteShoppingListItem(
-        routeParam(req.params.itemId)
-      );
+      await shoppingListService.deleteShoppingListItem(routeParam(req.params.itemId));
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -132,15 +128,12 @@ export const shoppingListController = {
   async validateShoppingList(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const list = await shoppingListService.updateShoppingList(
-        routeParam(req.params.id),
-        {
-          status: ShoppingListStatus.COMPLETED,
-        }
-      );
+      const list = await shoppingListService.updateShoppingList(routeParam(req.params.id), {
+        status: ShoppingListStatus.COMPLETED,
+      });
       res.json(list);
     } catch (error) {
       next(error);
@@ -150,38 +143,31 @@ export const shoppingListController = {
   async getFrequentItems(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
-      const items = await shoppingListService.getFrequentItems(
-        req.user.id,
-        limit
-      );
+      const items = await shoppingListService.getFrequentItems(req.user.id, limit);
       res.json(items);
     } catch (error) {
       next(error);
     }
   },
 
-  async searchItems(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async searchItems(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { searchTerm, limit } = req.query;
-      if (!searchTerm || typeof searchTerm !== "string") {
-        res.status(400).json({ message: "Le terme de recherche est requis" });
+      if (!searchTerm || typeof searchTerm !== 'string') {
+        res.status(400).json({ message: 'Le terme de recherche est requis' });
         return;
       }
 
-      console.log("searchTerm", searchTerm);
+      console.log('searchTerm', searchTerm);
 
       const items = await shoppingListService.searchItems(
         req.user.id,
         searchTerm,
-        limit ? parseInt(limit as string) : 10
+        limit ? parseInt(limit as string) : 10,
       );
       res.json(items);
     } catch (error) {

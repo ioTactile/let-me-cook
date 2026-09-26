@@ -1,13 +1,13 @@
-import { Response, NextFunction } from "express";
-import { fridgeService } from "@/infrastructure/container";
-import { AuthenticatedRequest } from "@/types/express.types";
-import { routeParam } from "@/utils/route-param";
+import { Response, NextFunction } from 'express';
+import { fridgeService } from '@/infrastructure/container';
+import { AuthenticatedRequest } from '@/types/express.types';
+import { routeParam } from '@/utils/route-param';
 
 export const fridgeController = {
   async getFridgeItems(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const items = await fridgeService.getFridgeItems(req.user.id);
@@ -20,12 +20,10 @@ export const fridgeController = {
   async getFridgeItemById(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const item = await fridgeService.getFridgeItemById(
-        routeParam(req.params.id)
-      );
+      const item = await fridgeService.getFridgeItemById(routeParam(req.params.id));
       res.json(item);
     } catch (error) {
       next(error);
@@ -35,7 +33,7 @@ export const fridgeController = {
   async createFridgeItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const item = await fridgeService.createFridgeItem({
@@ -51,13 +49,10 @@ export const fridgeController = {
   async updateFridgeItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
-      const item = await fridgeService.updateFridgeItem(
-        routeParam(req.params.id),
-        req.body
-      );
+      const item = await fridgeService.updateFridgeItem(routeParam(req.params.id), req.body);
       res.json(item);
     } catch (error) {
       next(error);
@@ -67,7 +62,7 @@ export const fridgeController = {
   async deleteFridgeItem(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       await fridgeService.deleteFridgeItem(routeParam(req.params.id));
@@ -80,14 +75,11 @@ export const fridgeController = {
   async getExpiringItems(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const daysThreshold = parseInt(req.query.days as string) || 7;
-      const items = await fridgeService.getExpiringItems(
-        req.user.id,
-        daysThreshold
-      );
+      const items = await fridgeService.getExpiringItems(req.user.id, daysThreshold);
       res.json(items);
     } catch (error) {
       next(error);

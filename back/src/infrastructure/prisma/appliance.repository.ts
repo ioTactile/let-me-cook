@@ -1,16 +1,10 @@
-import type { Prisma } from "@/generated/prisma/client";
-import { ApplianceRepository } from "@/application/ports/appliance.repository";
-import { prisma } from "@/infrastructure/prisma/client";
-import {
-  Appliance,
-  CreateApplianceDto,
-  UpdateApplianceDto,
-} from "@/types/appliance.types";
+import type { Prisma } from '@/generated/prisma/client';
+import { ApplianceRepository } from '@/application/ports/appliance.repository';
+import { prisma } from '@/infrastructure/prisma/client';
+import { Appliance, CreateApplianceDto, UpdateApplianceDto } from '@/types/appliance.types';
 
 export class PrismaApplianceRepository implements ApplianceRepository {
-  private toAppliance(
-    prismaAppliance: Prisma.ApplianceGetPayload<object>
-  ): Appliance {
+  private toAppliance(prismaAppliance: Prisma.ApplianceGetPayload<object>): Appliance {
     return {
       id: prismaAppliance.id,
       userId: prismaAppliance.userId,
@@ -35,7 +29,7 @@ export class PrismaApplianceRepository implements ApplianceRepository {
   async findAllByUser(userId: string): Promise<Appliance[]> {
     const prismaAppliances = await prisma.appliance.findMany({
       where: { userId },
-      orderBy: { name: "asc" },
+      orderBy: { name: 'asc' },
     });
     return prismaAppliances.map((a) => this.toAppliance(a));
   }

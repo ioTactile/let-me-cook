@@ -1,9 +1,5 @@
-import { BaseModel } from "@/types/base.types";
-import {
-  ShoppingListStatus,
-  ShoppingListItemStatus,
-  Unit,
-} from "@/domain/enums";
+import { BaseModel } from '@/types/base.types';
+import { ShoppingListStatus, ShoppingListItemStatus, Unit } from '@/domain/enums';
 
 export interface ShoppingListItem extends BaseModel {
   shoppingListId: string;

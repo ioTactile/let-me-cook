@@ -1,22 +1,14 @@
-import React from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
-import {
-  Text,
-  useTheme,
-  Card,
-  IconButton,
-  Divider,
-  Chip,
-  List,
-} from "react-native-paper";
-import Markdown from "react-native-markdown-display";
-import { theme } from "@/constants/Theme";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { useGetFridgeItem } from "@/hooks/use-get-fridge-item";
-import { useSnackbarStore } from "@/stores/snackbar.store";
-import { useDeleteFridgeItem } from "@/app/fridge/_mutations/use-delete-fridge-item";
-import { useConfirmationDialogStore } from "@/stores/confirmation-dialog.store";
+import React from 'react';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
+import { Text, useTheme, Card, IconButton, Divider, Chip, List } from 'react-native-paper';
+import Markdown from 'react-native-markdown-display';
+import { theme } from '@/constants/Theme';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useGetFridgeItem } from '@/hooks/use-get-fridge-item';
+import { useSnackbarStore } from '@/stores/snackbar.store';
+import { useDeleteFridgeItem } from '@/app/fridge/_mutations/use-delete-fridge-item';
+import { useConfirmationDialogStore } from '@/stores/confirmation-dialog.store';
 
 export default function FridgeItemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -33,20 +25,20 @@ export default function FridgeItemDetailScreen() {
   const handleDelete = () => {
     deleteFridgeItem(id, {
       onSuccess: () => {
-        showSnackbar("Produit supprimé avec succès", "success");
+        showSnackbar('Produit supprimé avec succès', 'success');
         router.back();
       },
       onError: () => {
-        showSnackbar("Erreur lors de la suppression", "error");
+        showSnackbar('Erreur lors de la suppression', 'error');
       },
     });
   };
 
   const handleDeleteClick = () => {
     showDialog(
-      "Confirmer la suppression",
-      "Êtes-vous sûr de vouloir supprimer ce produit ?",
-      handleDelete
+      'Confirmer la suppression',
+      'Êtes-vous sûr de vouloir supprimer ce produit ?',
+      handleDelete,
     );
   };
 
@@ -63,46 +55,42 @@ export default function FridgeItemDetailScreen() {
   }
 
   const getExpirationStatus = () => {
-    if (!item.expirationDate) return "info";
+    if (!item.expirationDate) return 'info';
     const expiryDate = new Date(item.expirationDate);
     const today = new Date();
-    const diffDays = Math.ceil(
-      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return "error";
-    if (diffDays < 3) return "warning";
-    return "success";
+    if (diffDays < 0) return 'error';
+    if (diffDays < 3) return 'warning';
+    return 'success';
   };
 
   const getExpirationText = () => {
     if (!item.expirationDate) return "Pas de date d'expiration";
     const expiryDate = new Date(item.expirationDate);
     const today = new Date();
-    const diffDays = Math.ceil(
-      (expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
+    const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) return "Expiré";
+    if (diffDays < 0) return 'Expiré';
     if (diffDays === 0) return "Expire aujourd'hui";
-    if (diffDays === 1) return "Expire demain";
+    if (diffDays === 1) return 'Expire demain';
     return `Expire dans ${diffDays} jours`;
   };
 
   const getExpirationColor = () => {
     const status = getExpirationStatus();
     switch (status) {
-      case "error":
+      case 'error':
         return {
           background: theme.colors.errorContainer,
           text: theme.colors.error,
         };
-      case "warning":
+      case 'warning':
         return {
-          background: "#FFF3E0",
-          text: "#FFA726",
+          background: '#FFF3E0',
+          text: '#FFA726',
         };
-      case "success":
+      case 'success':
         return {
           background: theme.colors.primaryContainer,
           text: theme.colors.primary,
@@ -121,11 +109,7 @@ export default function FridgeItemDetailScreen() {
         <Card.Content>
           <View style={styles.header}>
             <View style={styles.headerLeft}>
-              <IconButton
-                icon="arrow-left"
-                size={24}
-                onPress={() => router.back()}
-              />
+              <IconButton icon="arrow-left" size={24} onPress={() => router.back()} />
               <Text variant="headlineMedium" style={styles.title}>
                 {item.ingredientName}
               </Text>
@@ -147,10 +131,7 @@ export default function FridgeItemDetailScreen() {
             <Chip
               mode="outlined"
               icon="clock"
-              style={[
-                styles.expirationChip,
-                { backgroundColor: getExpirationColor().background },
-              ]}
+              style={[styles.expirationChip, { backgroundColor: getExpirationColor().background }]}
               textStyle={{ color: getExpirationColor().text }}
             >
               {getExpirationText()}
@@ -158,10 +139,7 @@ export default function FridgeItemDetailScreen() {
           </View>
 
           {item.metadata?.analysis && (
-            <List.Accordion
-              title="Analyse nutritionnelle"
-              titleStyle={styles.accordionTitle}
-            >
+            <List.Accordion title="Analyse nutritionnelle" titleStyle={styles.accordionTitle}>
               <View style={styles.analysisContainer}>
                 <Markdown
                   style={{
@@ -184,15 +162,13 @@ export default function FridgeItemDetailScreen() {
 
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Text variant="titleMedium">Date d'ajout</Text>
-              <Text variant="bodyLarge">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </Text>
+              <Text variant="titleMedium">Date d&apos;ajout</Text>
+              <Text variant="bodyLarge">{new Date(item.createdAt).toLocaleDateString()}</Text>
             </View>
 
             {item.expirationDate && (
               <View style={styles.detailRow}>
-                <Text variant="titleMedium">Date d'expiration</Text>
+                <Text variant="titleMedium">Date d&apos;expiration</Text>
                 <Text variant="bodyLarge">
                   {new Date(item.expirationDate).toLocaleDateString()}
                 </Text>
@@ -201,9 +177,7 @@ export default function FridgeItemDetailScreen() {
 
             <View style={styles.detailRow}>
               <Text variant="titleMedium">Dernière mise à jour</Text>
-              <Text variant="bodyLarge">
-                {new Date(item.updatedAt).toLocaleDateString()}
-              </Text>
+              <Text variant="bodyLarge">{new Date(item.updatedAt).toLocaleDateString()}</Text>
             </View>
           </View>
         </Card.Content>
@@ -221,23 +195,23 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
   headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
   title: {
     flex: 1,
   },
   quantityContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
   expirationChip: {
@@ -250,17 +224,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   error: {
     color: theme.colors.error,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
   accordionTitle: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   analysisContainer: {
     padding: 16,

@@ -1,36 +1,32 @@
-import type { Prisma } from "@/generated/prisma/client";
-import { RecipeRepository } from "@/application/ports/recipe.repository";
-import { AppError } from "@/domain/errors/app-error";
-import { prisma } from "@/infrastructure/prisma/client";
+import type { Prisma } from '@/generated/prisma/client';
+import { RecipeRepository } from '@/application/ports/recipe.repository';
+import { AppError } from '@/domain/errors/app-error';
+import { prisma } from '@/infrastructure/prisma/client';
 import {
   Recipe,
   CreateRecipeDto,
   UpdateRecipeDto,
   RecipeSearchContext,
-} from "@/types/recipe.types";
+} from '@/types/recipe.types';
 
 export class PrismaRecipeRepository implements RecipeRepository {
   private toRecipe(prismaRecipe: Prisma.RecipeGetPayload<object> | any): Recipe {
     return {
       id: prismaRecipe.id,
       title: prismaRecipe.title,
-      ingredients: prismaRecipe.ingredients as unknown as Recipe["ingredients"],
+      ingredients: prismaRecipe.ingredients as unknown as Recipe['ingredients'],
       instructions: prismaRecipe.instructions,
-      cookingTime:
-        prismaRecipe.cookingTime ?? prismaRecipe.cooking_time,
+      cookingTime: prismaRecipe.cookingTime ?? prismaRecipe.cooking_time,
       difficulty: prismaRecipe.difficulty,
       appliances: prismaRecipe.appliances,
-      metadata: prismaRecipe.metadata as Recipe["metadata"],
+      metadata: prismaRecipe.metadata as Recipe['metadata'],
       embedding: prismaRecipe.embedding as unknown as Record<string, number[]>,
       createdAt: prismaRecipe.createdAt ?? prismaRecipe.created_at,
       updatedAt: prismaRecipe.updatedAt ?? prismaRecipe.updated_at,
     };
   }
 
-  async create(
-    data: CreateRecipeDto,
-    embedding: Record<string, number[]>
-  ): Promise<Recipe> {
+  async create(data: CreateRecipeDto, embedding: Record<string, number[]>): Promise<Recipe> {
     const prismaRecipe = await prisma.recipe.create({
       data: {
         title: data.title,
@@ -54,7 +50,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
   async update(
     id: string,
     data: UpdateRecipeDto,
-    embedding: Record<string, number[]>
+    embedding: Record<string, number[]>,
   ): Promise<Recipe> {
     const prismaRecipe = await prisma.recipe.update({
       where: { id },
@@ -78,7 +74,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
 
   async findSimilar(
     context: RecipeSearchContext,
-    embeddings: { ingredients: number[]; appliances: number[] }
+    embeddings: { ingredients: number[]; appliances: number[] },
   ): Promise<Recipe[]> {
     const prismaRecipes = await Promise.race([
       prisma.$queryRaw`
@@ -109,10 +105,7 @@ export class PrismaRecipeRepository implements RecipeRepository {
         LIMIT 5
       `,
       new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new AppError("Timeout de la requête", 504)),
-          5000
-        )
+        setTimeout(() => reject(new AppError('Timeout de la requête', 504)), 5000),
       ),
     ]);
 

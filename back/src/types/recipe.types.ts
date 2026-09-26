@@ -1,4 +1,4 @@
-import { BaseModel, Ingredient } from "@/types/base.types";
+import { BaseModel, Ingredient } from '@/types/base.types';
 
 export interface Recipe extends BaseModel {
   title: string;

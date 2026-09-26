@@ -1,6 +1,6 @@
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { User, Recipe, FridgeItem, Appliance, ShoppingList } from "@/types";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { User, Recipe, FridgeItem, Appliance, ShoppingList } from '@/types';
 import {
   AuthResponse,
   CreateApplianceDto,
@@ -8,20 +8,20 @@ import {
   CreateShoppingListDto,
   CreateShoppingListItemDto,
   UpdateShoppingListItemsDto,
-} from "@/types/api.dto";
-import { transformEmptyStringsToNull } from "@/utils/transform-empty-string-to-null";
+} from '@/types/api.dto';
+import { transformEmptyStringsToNull } from '@/utils/transform-empty-string-to-null';
 
-const API_URL = process.env.API_URL || "http://192.168.1.55:8000/api";
+const API_URL = process.env.API_URL || 'http://192.168.1.55:8000/api';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
 api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
+  const token = await AsyncStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -30,18 +30,14 @@ api.interceptors.request.use(async (config) => {
 
 export const auth = {
   login: async (email: string, password: string): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>("/auth/login", {
+    const { data } = await api.post<AuthResponse>('/auth/login', {
       email,
       password,
     });
     return data;
   },
-  register: async (
-    email: string,
-    password: string,
-    username: string
-  ): Promise<AuthResponse> => {
-    const { data } = await api.post<AuthResponse>("/auth/register", {
+  register: async (email: string, password: string, username: string): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>('/auth/register', {
       email,
       password,
       username,
@@ -49,10 +45,10 @@ export const auth = {
     return data;
   },
   logout: async (): Promise<void> => {
-    // Le token est retiré par le store auth
+    // Token is cleared by the auth store
   },
   getUser: async (): Promise<User> => {
-    const { data } = await api.get<User>("/auth/me");
+    const { data } = await api.get<User>('/auth/me');
     return data;
   },
 };
@@ -63,7 +59,7 @@ export const recipes = {
     appliances: string[];
     maxCookingTime: number;
   }): Promise<Recipe[]> => {
-    const { data } = await api.post<Recipe[]>("/recipes/similar", payload);
+    const { data } = await api.post<Recipe[]>('/recipes/similar', payload);
     return data;
   },
   getById: async (id: string): Promise<Recipe> => {
@@ -71,9 +67,9 @@ export const recipes = {
     return data;
   },
   create: async (
-    payload: Omit<Recipe, "id" | "createdAt" | "updatedAt" | "embedding">
+    payload: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt' | 'embedding'>,
   ): Promise<Recipe> => {
-    const { data } = await api.post<Recipe>("/recipes", payload);
+    const { data } = await api.post<Recipe>('/recipes', payload);
     return data;
   },
   update: async (id: string, payload: Partial<Recipe>): Promise<Recipe> => {
@@ -87,7 +83,7 @@ export const recipes = {
 
 export const fridge = {
   getAll: async (): Promise<FridgeItem[]> => {
-    const { data } = await api.get<FridgeItem[]>("/fridge");
+    const { data } = await api.get<FridgeItem[]>('/fridge');
     return data;
   },
   getById: async (id: string): Promise<FridgeItem> => {
@@ -95,19 +91,13 @@ export const fridge = {
     return data;
   },
   create: async (payload: CreateFridgeItemDto): Promise<FridgeItem> => {
-    const { data } = await api.post<FridgeItem>(
-      "/fridge",
-      transformEmptyStringsToNull(payload)
-    );
+    const { data } = await api.post<FridgeItem>('/fridge', transformEmptyStringsToNull(payload));
     return data;
   },
-  update: async (
-    id: string,
-    payload: Partial<CreateFridgeItemDto>
-  ): Promise<FridgeItem> => {
+  update: async (id: string, payload: Partial<CreateFridgeItemDto>): Promise<FridgeItem> => {
     const { data } = await api.put<FridgeItem>(
       `/fridge/${id}`,
-      transformEmptyStringsToNull(payload)
+      transformEmptyStringsToNull(payload),
     );
     return data;
   },
@@ -118,7 +108,7 @@ export const fridge = {
 
 export const appliances = {
   getAll: async (): Promise<Appliance[]> => {
-    const { data } = await api.get<Appliance[]>("/appliances");
+    const { data } = await api.get<Appliance[]>('/appliances');
     return data;
   },
   getById: async (id: string): Promise<Appliance> => {
@@ -126,13 +116,10 @@ export const appliances = {
     return data;
   },
   create: async (payload: CreateApplianceDto): Promise<Appliance> => {
-    const { data } = await api.post<Appliance>("/appliances", payload);
+    const { data } = await api.post<Appliance>('/appliances', payload);
     return data;
   },
-  update: async (
-    id: string,
-    payload: Partial<CreateApplianceDto>
-  ): Promise<Appliance> => {
+  update: async (id: string, payload: Partial<CreateApplianceDto>): Promise<Appliance> => {
     const { data } = await api.put<Appliance>(`/appliances/${id}`, payload);
     return data;
   },
@@ -149,7 +136,7 @@ export type FrequentItem = {
 
 export const shoppingLists = {
   getAll: async (): Promise<ShoppingList[]> => {
-    const { data } = await api.get<ShoppingList[]>("/shopping-lists");
+    const { data } = await api.get<ShoppingList[]>('/shopping-lists');
     return data;
   },
   getById: async (id: string): Promise<ShoppingList> => {
@@ -157,62 +144,40 @@ export const shoppingLists = {
     return data;
   },
   create: async (payload: CreateShoppingListDto): Promise<ShoppingList> => {
-    const { data } = await api.post<ShoppingList>("/shopping-lists", payload);
+    const { data } = await api.post<ShoppingList>('/shopping-lists', payload);
     return data;
   },
-  update: async (
-    id: string,
-    payload: UpdateShoppingListItemsDto
-  ): Promise<ShoppingList> => {
-    const { data } = await api.put<ShoppingList>(
-      `/shopping-lists/${id}`,
-      payload
-    );
+  update: async (id: string, payload: UpdateShoppingListItemsDto): Promise<ShoppingList> => {
+    const { data } = await api.put<ShoppingList>(`/shopping-lists/${id}`, payload);
     return data;
   },
   delete: async (id: string): Promise<void> => {
     await api.delete(`/shopping-lists/${id}`);
   },
   validate: async (id: string): Promise<ShoppingList> => {
-    const { data } = await api.post<ShoppingList>(
-      `/shopping-lists/${id}/validate`
-    );
+    const { data } = await api.post<ShoppingList>(`/shopping-lists/${id}/validate`);
     return data;
   },
   getFrequentItems: async (limit: number = 10): Promise<FrequentItem[]> => {
+    const { data } = await api.get<FrequentItem[]>(`/shopping-lists/frequent-items?limit=${limit}`);
+    return data;
+  },
+  searchItems: async (searchTerm: string, limit: number = 10): Promise<FrequentItem[]> => {
     const { data } = await api.get<FrequentItem[]>(
-      `/shopping-lists/frequent-items?limit=${limit}`
+      `/shopping-lists/search-items?searchTerm=${searchTerm}&limit=${limit}`,
     );
     return data;
   },
-  searchItems: async (
-    searchTerm: string,
-    limit: number = 10
-  ): Promise<FrequentItem[]> => {
-    const { data } = await api.get<FrequentItem[]>(
-      `/shopping-lists/search-items?searchTerm=${searchTerm}&limit=${limit}`
-    );
-    return data;
-  },
-  createItem: async (
-    id: string,
-    payload: CreateShoppingListItemDto
-  ): Promise<ShoppingList> => {
-    const { data } = await api.post<ShoppingList>(
-      `/shopping-lists/${id}/items`,
-      payload
-    );
+  createItem: async (id: string, payload: CreateShoppingListItemDto): Promise<ShoppingList> => {
+    const { data } = await api.post<ShoppingList>(`/shopping-lists/${id}/items`, payload);
     return data;
   },
   updateItem: async (
     id: string,
     itemId: string,
-    payload: UpdateShoppingListItemsDto
+    payload: UpdateShoppingListItemsDto,
   ): Promise<ShoppingList> => {
-    const { data } = await api.put<ShoppingList>(
-      `/shopping-lists/${id}/items/${itemId}`,
-      payload
-    );
+    const { data } = await api.put<ShoppingList>(`/shopping-lists/${id}/items/${itemId}`, payload);
     return data;
   },
   deleteItem: async (id: string, itemId: string): Promise<void> => {
@@ -228,18 +193,18 @@ export const ai = {
     ingredients: string[];
     appliances: string[];
   }) => {
-    const { data } = await api.post("/ai/suggest-recipes", {
+    const { data } = await api.post('/ai/suggest-recipes', {
       ingredients,
       appliances: applianceNames,
     });
     return data;
   },
   analyzeRecipe: async (recipe: string) => {
-    const { data } = await api.post("/ai/analyze-recipe", { recipe });
+    const { data } = await api.post('/ai/analyze-recipe', { recipe });
     return data;
   },
   generateShoppingList: async (recipe: string) => {
-    const { data } = await api.post("/ai/generate-shopping-list", { recipe });
+    const { data } = await api.post('/ai/generate-shopping-list', { recipe });
     return data;
   },
 };

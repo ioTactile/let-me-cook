@@ -1,22 +1,16 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { router } from "expo-router";
-import {
-  TextInput,
-  Button,
-  useTheme,
-  Text,
-  IconButton,
-} from "react-native-paper";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
+import { TextInput, Button, useTheme, Text, IconButton } from 'react-native-paper';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import {
   createApplianceSchema,
   type CreateApplianceInputs,
-} from "@/app/appliance/_schemas/create-appliance";
-import { useCreateAppliance } from "@/app/appliance/_mutations/use-create-appliance";
-import { useSnackbarStore } from "@/stores/snackbar.store";
-import { theme } from "@/constants/Theme";
+} from '@/app/appliance/_schemas/create-appliance';
+import { useCreateAppliance } from '@/app/appliance/_mutations/use-create-appliance';
+import { useSnackbarStore } from '@/stores/snackbar.store';
+import { theme } from '@/constants/Theme';
 
 export default function NewApplianceScreen() {
   const theme = useTheme();
@@ -29,10 +23,10 @@ export default function NewApplianceScreen() {
   } = useForm<CreateApplianceInputs>({
     resolver: zodResolver(createApplianceSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      name: '',
+      description: '',
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const { mutate: createAppliance, isPending } = useCreateAppliance();
@@ -43,7 +37,7 @@ export default function NewApplianceScreen() {
         router.back();
       },
       onError: (error) => {
-        showSnackbar(error.message || "Une erreur est survenue", "error");
+        showSnackbar(error.message || 'Une erreur est survenue', 'error');
       },
     });
   };
@@ -78,7 +72,7 @@ export default function NewApplianceScreen() {
         render={({ field: { onChange, value } }) => (
           <TextInput
             label="Description (optionnelle)"
-            value={value || ""}
+            value={value || ''}
             onChangeText={onChange}
             error={!!errors.description}
             style={styles.input}
@@ -87,9 +81,7 @@ export default function NewApplianceScreen() {
           />
         )}
       />
-      {errors.description && (
-        <Text style={styles.error}>{errors.description.message}</Text>
-      )}
+      {errors.description && <Text style={styles.error}>{errors.description.message}</Text>}
 
       <Button
         mode="contained"
@@ -98,7 +90,7 @@ export default function NewApplianceScreen() {
         disabled={isPending}
         style={[styles.button, { backgroundColor: theme.colors.primary }]}
       >
-        Ajouter l'appareil
+        Ajouter l&apos;appareil
       </Button>
     </View>
   );
@@ -111,8 +103,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
   title: {

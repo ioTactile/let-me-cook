@@ -1,7 +1,7 @@
-import * as React from "react";
-import { StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
-import { Recipe } from "@/types";
+import * as React from 'react';
+import { StyleSheet, View } from 'react-native';
+import { Card, Text } from 'react-native-paper';
+import { Recipe } from '@/types';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -14,7 +14,7 @@ export function RecipeCard({ recipe, onPress }: RecipeCardProps) {
       <Card.Content>
         <Text variant="titleLarge">{recipe.title}</Text>
         <Text variant="bodyMedium" numberOfLines={2}>
-          {recipe.ingredients.map((ingredient) => ingredient.name).join(", ")}
+          {recipe.ingredients.map((ingredient) => ingredient.name).join(', ')}
         </Text>
         <View style={styles.recipeInfo}>
           <Text variant="bodySmall">
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   },
   recipeInfo: {
     marginTop: 8,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });

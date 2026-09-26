@@ -1,4 +1,4 @@
-import { ShoppingListItemStatus, ShoppingListStatus } from "@/types/enums";
+import { ShoppingListItemStatus, ShoppingListStatus } from '@/types/enums';
 
 export interface User {
   id: string;

@@ -1,5 +1,5 @@
-import { AppError } from "@/domain/errors/app-error";
-import { SessionPort } from "@/application/ports/session.port";
+import { AppError } from '@/domain/errors/app-error';
+import { SessionPort } from '@/application/ports/session.port';
 
 type ExpressSessionLike = {
   userId?: string;
@@ -13,7 +13,7 @@ export class ExpressSessionAdapter implements SessionPort {
 
   async create(userId: string): Promise<void> {
     if (!this.session) {
-      throw new AppError("Session non initialisée", 500);
+      throw new AppError('Session non initialisée', 500);
     }
     this.session.userId = userId;
     this.session.createdAt = new Date();
@@ -22,7 +22,7 @@ export class ExpressSessionAdapter implements SessionPort {
 
   async updateLastActivity(): Promise<void> {
     if (!this.session) {
-      throw new AppError("Session non initialisée", 500);
+      throw new AppError('Session non initialisée', 500);
     }
     this.session.lastActivity = new Date();
   }
@@ -30,14 +30,12 @@ export class ExpressSessionAdapter implements SessionPort {
   async destroy(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.session) {
-        reject(new AppError("Session non initialisée", 500));
+        reject(new AppError('Session non initialisée', 500));
         return;
       }
       this.session.destroy((err) => {
         if (err) {
-          reject(
-            new AppError("Erreur lors de la destruction de la session", 500)
-          );
+          reject(new AppError('Erreur lors de la destruction de la session', 500));
           return;
         }
         resolve();

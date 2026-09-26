@@ -1,4 +1,4 @@
-import { BaseModel } from "./base.types";
+import { BaseModel } from './base.types';
 
 export interface FridgeItem extends BaseModel {
   userId: string;

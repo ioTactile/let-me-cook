@@ -1,12 +1,12 @@
-import React from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import { router } from "expo-router";
+import React from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { router } from 'expo-router';
 
-import { FAB, useTheme, Text, Card } from "react-native-paper";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { FAB, useTheme, Text, Card } from 'react-native-paper';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
-import { useGetAppliances } from "@/hooks/use-get-appliances";
-import { theme } from "@/constants/Theme";
+import { useGetAppliances } from '@/hooks/use-get-appliances';
+import { theme } from '@/constants/Theme';
 
 export default function AppliancesScreen() {
   const theme = useTheme();
@@ -34,7 +34,7 @@ export default function AppliancesScreen() {
             style={styles.card}
             onPress={() => {
               router.push({
-                pathname: "/appliance/[id]",
+                pathname: '/appliance/[id]',
                 params: { id: item.id },
               });
             }}
@@ -54,7 +54,7 @@ export default function AppliancesScreen() {
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => {
-          router.push("/appliance/new");
+          router.push('/appliance/new');
         }}
       />
     </View>
@@ -73,22 +73,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   applianceInfo: {
     flex: 1,
   },
   fab: {
-    position: "absolute",
+    position: 'absolute',
     margin: 16,
     right: 0,
     bottom: 0,
   },
   error: {
     color: theme.colors.error,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
 });

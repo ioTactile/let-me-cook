@@ -1,27 +1,19 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Platform } from "react-native";
-import { router } from "expo-router";
+import React, { useState } from 'react';
+import { View, StyleSheet, Platform } from 'react-native';
+import { router } from 'expo-router';
 
-import {
-  TextInput,
-  Button,
-  useTheme,
-  Text,
-  IconButton,
-} from "react-native-paper";
+import { TextInput, Button, useTheme, Text, IconButton } from 'react-native-paper';
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import {
   createFridgeItemSchema,
   type CreateFridgeItemInputs,
-} from "@/app/fridge/_schemas/create-fridge-item";
-import { useCreateFridgeItem } from "@/app/fridge/_mutations/use-create-fridge-item";
-import { useSnackbarStore } from "@/stores/snackbar.store";
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
-import { theme } from "@/constants/Theme";
+} from '@/app/fridge/_schemas/create-fridge-item';
+import { useCreateFridgeItem } from '@/app/fridge/_mutations/use-create-fridge-item';
+import { useSnackbarStore } from '@/stores/snackbar.store';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { theme } from '@/constants/Theme';
 
 export default function NewFridgeItemScreen() {
   const theme = useTheme();
@@ -35,12 +27,12 @@ export default function NewFridgeItemScreen() {
   } = useForm<CreateFridgeItemInputs>({
     resolver: zodResolver(createFridgeItemSchema),
     defaultValues: {
-      ingredientName: "",
+      ingredientName: '',
       quantity: 1,
-      unit: "",
+      unit: '',
       expiryDate: new Date(),
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
   const { mutate: createFridgeItem, isPending } = useCreateFridgeItem();
@@ -51,20 +43,17 @@ export default function NewFridgeItemScreen() {
         router.back();
       },
       onError: (error) => {
-        showSnackbar(error.message || "Une erreur est survenue", "error");
+        showSnackbar(error.message || 'Une erreur est survenue', 'error');
       },
     });
   };
 
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const handleDateChange = (
-    _event: DateTimePickerEvent,
-    selectedDate?: Date
-  ) => {
+  const handleDateChange = (_event: DateTimePickerEvent, selectedDate?: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
-      setValue("expiryDate", selectedDate);
+      setValue('expiryDate', selectedDate);
     }
   };
 
@@ -90,9 +79,7 @@ export default function NewFridgeItemScreen() {
           />
         )}
       />
-      {errors.ingredientName && (
-        <Text style={styles.error}>{errors.ingredientName.message}</Text>
-      )}
+      {errors.ingredientName && <Text style={styles.error}>{errors.ingredientName.message}</Text>}
 
       <Controller
         control={control}
@@ -108,9 +95,7 @@ export default function NewFridgeItemScreen() {
           />
         )}
       />
-      {errors.quantity && (
-        <Text style={styles.error}>{errors.quantity.message}</Text>
-      )}
+      {errors.quantity && <Text style={styles.error}>{errors.quantity.message}</Text>}
 
       <Controller
         control={control}
@@ -134,23 +119,18 @@ export default function NewFridgeItemScreen() {
           <>
             <TextInput
               label="Date d'expiration"
-              value={value ? new Date(value).toISOString() : ""}
+              value={value ? new Date(value).toISOString() : ''}
               onFocus={() => setShowDatePicker(true)}
               showSoftInputOnFocus={false}
               error={!!errors.expiryDate}
               style={styles.input}
-              right={
-                <TextInput.Icon
-                  icon="calendar"
-                  onPress={() => setShowDatePicker(true)}
-                />
-              }
+              right={<TextInput.Icon icon="calendar" onPress={() => setShowDatePicker(true)} />}
             />
             {showDatePicker && (
               <DateTimePicker
                 value={value ? new Date(value) : new Date()}
                 mode="date"
-                display={Platform.OS === "ios" ? "spinner" : "default"}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                 onChange={handleDateChange}
                 minimumDate={new Date()}
               />
@@ -158,9 +138,7 @@ export default function NewFridgeItemScreen() {
           </>
         )}
       />
-      {errors.expiryDate && (
-        <Text style={styles.error}>{errors.expiryDate.message}</Text>
-      )}
+      {errors.expiryDate && <Text style={styles.error}>{errors.expiryDate.message}</Text>}
 
       <Button
         mode="contained"
@@ -182,8 +160,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
   },
   title: {

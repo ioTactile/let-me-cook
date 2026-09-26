@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { authService } from "@/infrastructure/container";
-import { ExpressSessionAdapter } from "@/infrastructure/session/express-session.adapter";
-import { AuthenticatedRequest } from "@/types/express.types";
+import { Request, Response, NextFunction } from 'express';
+import { authService } from '@/infrastructure/container';
+import { ExpressSessionAdapter } from '@/infrastructure/session/express-session.adapter';
+import { AuthenticatedRequest } from '@/types/express.types';
 
 export const userController = {
   async register(req: Request, res: Response, next: NextFunction) {
@@ -34,11 +34,7 @@ export const userController = {
     }
   },
 
-  async getCurrentUser(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) {
+  async getCurrentUser(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     try {
       const user = await authService.getCurrentUser(req.user.id);
       res.json(user);

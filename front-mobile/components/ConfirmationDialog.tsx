@@ -1,11 +1,10 @@
-import React from "react";
-import { Dialog, Button, Text } from "react-native-paper";
-import { useConfirmationDialogStore } from "@/stores/confirmation-dialog.store";
-import { theme } from "@/constants/Theme";
+import React from 'react';
+import { Dialog, Button, Text } from 'react-native-paper';
+import { useConfirmationDialogStore } from '@/stores/confirmation-dialog.store';
+import { theme } from '@/constants/Theme';
 
 export function ConfirmationDialog() {
-  const { isVisible, title, message, onConfirm, hideDialog } =
-    useConfirmationDialogStore();
+  const { isVisible, title, message, onConfirm, hideDialog } = useConfirmationDialogStore();
 
   const handleConfirm = () => {
     if (onConfirm) {

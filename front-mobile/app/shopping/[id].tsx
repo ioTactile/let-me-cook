@@ -1,27 +1,20 @@
-import React, { useEffect } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useGetShoppingList } from "@/hooks/use-get-shopping-list";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { Text, IconButton, Checkbox, Divider } from "react-native-paper";
-import { theme } from "@/constants/Theme";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useGetShoppingList } from '@/hooks/use-get-shopping-list';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Text, IconButton, Checkbox, Divider } from 'react-native-paper';
+import { theme } from '@/constants/Theme';
+import { useForm, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   UpdateShoppingListItemInputs,
   updateShoppingListItemSchema,
-} from "@/app/shopping/_schemas/update-shopping-list-item";
-import { ShoppingListItemStatus, Unit } from "@/types/enums";
-import { useUpdateShoppingListStatus } from "@/app/shopping/_mutations/use-update-shopping-list-status";
-import { useUpdateShoppingListItem } from "@/app/shopping/_mutations/use-update-shopping-list-item";
-import { useSnackbarStore } from "@/stores/snackbar.store";
+} from '@/app/shopping/_schemas/update-shopping-list-item';
+import { ShoppingListItemStatus, Unit } from '@/types/enums';
+import { useUpdateShoppingListStatus } from '@/app/shopping/_mutations/use-update-shopping-list-status';
+import { useUpdateShoppingListItem } from '@/app/shopping/_mutations/use-update-shopping-list-item';
+import { useSnackbarStore } from '@/stores/snackbar.store';
 
 export default function ShoppingListScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -31,47 +24,43 @@ export default function ShoppingListScreen() {
 
   const { data: shoppingList, isLoading, error } = useGetShoppingList(id);
 
-  const { setValue, watch } = useForm<UpdateShoppingListItemInputs>({
+  const { setValue, control } = useForm<UpdateShoppingListItemInputs>({
     resolver: zodResolver(updateShoppingListItemSchema),
     defaultValues: {
       items: [],
     },
-    mode: "onChange",
+    mode: 'onChange',
   });
 
-  const { mutate: updateShoppingListItems, isPending: isPendingItems } =
-    useUpdateShoppingListItem();
+  const { mutate: updateShoppingListItems } = useUpdateShoppingListItem();
 
   useEffect(() => {
     if (shoppingList?.items) {
       setValue(
-        "items",
+        'items',
         shoppingList?.items.map((item) => ({
           id: item.id,
           status: item.status as ShoppingListItemStatus,
           quantity: item.quantity,
           unit: item.unit as Unit,
-        }))
+        })),
       );
     }
-  }, [shoppingList?.items]);
+  }, [shoppingList?.items, setValue]);
 
-  const items = watch("items");
+  const items = useWatch({ control, name: 'items' });
 
-  const { mutate: updateShoppingListStatus, isPending } =
-    useUpdateShoppingListStatus();
+  const { mutate: updateShoppingListStatus, isPending } = useUpdateShoppingListStatus();
 
   const closeShoppingList = () => {
-    const isAllItemsBought = items?.every(
-      (item) => item.status === ShoppingListItemStatus.BOUGHT
-    );
+    const isAllItemsBought = items?.every((item) => item.status === ShoppingListItemStatus.BOUGHT);
     if (!isAllItemsBought) {
-      showSnackbar("Veuillez cocher tous les produits");
+      showSnackbar('Veuillez cocher tous les produits');
       return;
     }
 
     if (!shoppingList?.id) {
-      showSnackbar("Erreur lors de la clôture de la liste");
+      showSnackbar('Erreur lors de la clôture de la liste');
       return;
     }
 
@@ -80,26 +69,22 @@ export default function ShoppingListScreen() {
   };
 
   const toggleAllItems = () => {
-    const allChecked = items?.every(
-      (item) => item.status === ShoppingListItemStatus.BOUGHT
-    );
+    const allChecked = items?.every((item) => item.status === ShoppingListItemStatus.BOUGHT);
 
-    const newStatus = allChecked
-      ? ShoppingListItemStatus.PENDING
-      : ShoppingListItemStatus.BOUGHT;
+    const newStatus = allChecked ? ShoppingListItemStatus.PENDING : ShoppingListItemStatus.BOUGHT;
 
     setValue(
-      "items",
+      'items',
       items?.map((item) => ({
         ...item,
         status: newStatus,
-      }))
+      })),
     );
   };
 
   const toggleItemStatus = (itemId: string) => {
     setValue(
-      "items",
+      'items',
       items?.map((item) =>
         item.id === itemId
           ? {
@@ -109,8 +94,8 @@ export default function ShoppingListScreen() {
                   ? ShoppingListItemStatus.BOUGHT
                   : ShoppingListItemStatus.PENDING,
             }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -121,9 +106,7 @@ export default function ShoppingListScreen() {
   if (error || !shoppingList) {
     return (
       <View style={styles.container}>
-        <Text style={styles.error}>
-          Erreur lors du chargement de la liste de courses
-        </Text>
+        <Text style={styles.error}>Erreur lors du chargement de la liste de courses</Text>
       </View>
     );
   }
@@ -140,11 +123,9 @@ export default function ShoppingListScreen() {
       <View style={styles.checkAllContainer}>
         <Checkbox
           status={
-            items?.every(
-              (item) => item.status === ShoppingListItemStatus.BOUGHT
-            )
-              ? "checked"
-              : "unchecked"
+            items?.every((item) => item.status === ShoppingListItemStatus.BOUGHT)
+              ? 'checked'
+              : 'unchecked'
           }
           onPress={toggleAllItems}
         />
@@ -163,11 +144,7 @@ export default function ShoppingListScreen() {
                 onPress={() => toggleItemStatus(item.id)}
               >
                 <Checkbox
-                  status={
-                    item.status === ShoppingListItemStatus.BOUGHT
-                      ? "checked"
-                      : "unchecked"
-                  }
+                  status={item.status === ShoppingListItemStatus.BOUGHT ? 'checked' : 'unchecked'}
                   onPress={() => toggleItemStatus(item.id)}
                 />
                 <View style={styles.itemContent}>
@@ -177,10 +154,7 @@ export default function ShoppingListScreen() {
                   </Text>
                 </View>
                 {listItem.imageUrl && (
-                  <Image
-                    source={{ uri: listItem.imageUrl }}
-                    style={styles.itemImage}
-                  />
+                  <Image source={{ uri: listItem.imageUrl }} style={styles.itemImage} />
                 )}
               </TouchableOpacity>
               {index < items.length - 1 && <Divider />}
@@ -195,7 +169,7 @@ export default function ShoppingListScreen() {
         disabled={isPending}
       >
         <Text style={styles.submitButtonText}>
-          {isPending ? "Clôture en cours..." : "Clôturer la liste"}
+          {isPending ? 'Clôture en cours...' : 'Clôturer la liste'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -208,8 +182,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: theme.colors.surface,
   },
@@ -218,8 +192,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   checkAllContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: theme.colors.surface,
   },
@@ -230,8 +204,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 16,
     backgroundColor: theme.colors.surface,
   },
@@ -241,7 +215,7 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   itemDetails: {
     fontSize: 14,
@@ -250,7 +224,7 @@ const styles = StyleSheet.create({
   },
   error: {
     color: theme.colors.error,
-    textAlign: "center",
+    textAlign: 'center',
     marginTop: 20,
   },
   submitButton: {
@@ -260,8 +234,8 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: theme.colors.background,
-    textAlign: "center",
-    fontWeight: "600",
+    textAlign: 'center',
+    fontWeight: '600',
   },
   itemImage: {
     width: 40,

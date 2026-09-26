@@ -1,14 +1,10 @@
-import { Response, NextFunction } from "express";
-import { recipeService } from "@/infrastructure/container";
-import { AuthenticatedRequest } from "@/types/express.types";
-import { routeParam } from "@/utils/route-param";
+import { Response, NextFunction } from 'express';
+import { recipeService } from '@/infrastructure/container';
+import { AuthenticatedRequest } from '@/types/express.types';
+import { routeParam } from '@/utils/route-param';
 
 export const recipeController = {
-  async createRecipe(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async createRecipe(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const recipe = await recipeService.createRecipe(req.body);
       res.status(201).json(recipe);
@@ -17,11 +13,7 @@ export const recipeController = {
     }
   },
 
-  async getRecipeById(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async getRecipeById(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const recipe = await recipeService.getRecipeById(routeParam(req.params.id));
       res.json(recipe);
@@ -33,7 +25,7 @@ export const recipeController = {
   async findSimilarRecipes(
     req: AuthenticatedRequest,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const { fridgeItems, appliances, maxCookingTime } = req.body;
@@ -48,27 +40,16 @@ export const recipeController = {
     }
   },
 
-  async updateRecipe(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async updateRecipe(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const recipe = await recipeService.updateRecipe(
-        routeParam(req.params.id),
-        req.body
-      );
+      const recipe = await recipeService.updateRecipe(routeParam(req.params.id), req.body);
       res.json(recipe);
     } catch (error) {
       next(error);
     }
   },
 
-  async deleteRecipe(
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async deleteRecipe(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       await recipeService.deleteRecipe(routeParam(req.params.id));
       res.status(204).send();

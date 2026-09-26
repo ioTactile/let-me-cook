@@ -1,4 +1,4 @@
-import { Unit, ShoppingListItemStatus } from "@/types/enums";
+import { Unit, ShoppingListItemStatus } from '@/types/enums';
 
 export type CreateFridgeItemDto = {
   ingredientName: string;
@@ -24,12 +24,12 @@ export type CreateShoppingListDto = {
 };
 
 export type UpdateShoppingListItemsDto = {
-  items: Array<{
+  items: {
     id: string;
     status?: ShoppingListItemStatus;
     quantity?: number;
     unit?: Unit;
-  }>;
+  }[];
 };
 
 export type AuthResponse = {
