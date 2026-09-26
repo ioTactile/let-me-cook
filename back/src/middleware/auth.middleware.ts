@@ -1,10 +1,8 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
-import { AppError } from "@/middleware/error.middleware";
+import { AppError } from "@/domain/errors/app-error";
+import { userRepository } from "@/infrastructure/container";
 import { AuthenticatedRequest } from "@/types/express.types";
-
-const prisma = new PrismaClient();
 
 export const authMiddleware = async (
   req: AuthenticatedRequest,
@@ -21,16 +19,13 @@ export const authMiddleware = async (
       userId: string;
     };
 
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-      select: { id: true },
-    });
+    const exists = await userRepository.existsById(decoded.userId);
 
-    if (!user) {
+    if (!exists) {
       throw new AppError("Utilisateur non trouvé", 401);
     }
 
-    req.user = user;
+    req.user = { id: decoded.userId };
     next();
   } catch (error) {
     console.log("error auth middleware", error);

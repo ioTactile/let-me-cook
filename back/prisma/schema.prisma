@@ -1,11 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  moduleFormat    = "cjs"
   previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
   extensions = [vector]
 }
 
@@ -143,4 +144,4 @@ model ShoppingListItem {
   @@index([shoppingListId])
   @@index([ingredientName])
   @@index([shoppingListId, ingredientName])
-} 
+}

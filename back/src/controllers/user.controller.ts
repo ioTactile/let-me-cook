@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from "express";
-import { AuthService } from "@/services/auth.service";
+import { authService } from "@/infrastructure/container";
+import { ExpressSessionAdapter } from "@/infrastructure/session/express-session.adapter";
 import { AuthenticatedRequest } from "@/types/express.types";
 
 export const userController = {
   async register(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await AuthService.register(req.body, req);
+      const session = new ExpressSessionAdapter(req.session);
+      const result = await authService.register(req.body, session);
       res.status(201).json(result);
     } catch (error) {
       next(error);
@@ -14,7 +16,8 @@ export const userController = {
 
   async login(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await AuthService.login(req.body, req);
+      const session = new ExpressSessionAdapter(req.session);
+      const result = await authService.login(req.body, session);
       res.json(result);
     } catch (error) {
       next(error);
@@ -23,7 +26,8 @@ export const userController = {
 
   async logout(req: Request, res: Response, next: NextFunction) {
     try {
-      await AuthService.logout(req);
+      const session = new ExpressSessionAdapter(req.session);
+      await authService.logout(session);
       res.status(204).send();
     } catch (error) {
       next(error);
@@ -36,7 +40,7 @@ export const userController = {
     next: NextFunction
   ) {
     try {
-      const user = await AuthService.getCurrentUser(req.user.id);
+      const user = await authService.getCurrentUser(req.user.id);
       res.json(user);
     } catch (error) {
       next(error);

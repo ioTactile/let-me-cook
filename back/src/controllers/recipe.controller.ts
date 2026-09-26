@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
-import { RecipeService } from "@/services/recipe.service";
+import { recipeService } from "@/infrastructure/container";
 import { AuthenticatedRequest } from "@/types/express.types";
+import { routeParam } from "@/utils/route-param";
 
 export const recipeController = {
   async createRecipe(
@@ -9,7 +10,7 @@ export const recipeController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const recipe = await RecipeService.createRecipe(req.body);
+      const recipe = await recipeService.createRecipe(req.body);
       res.status(201).json(recipe);
     } catch (error) {
       next(error);
@@ -22,7 +23,7 @@ export const recipeController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const recipe = await RecipeService.getRecipeById(req.params.id);
+      const recipe = await recipeService.getRecipeById(routeParam(req.params.id));
       res.json(recipe);
     } catch (error) {
       next(error);
@@ -36,7 +37,7 @@ export const recipeController = {
   ): Promise<void> {
     try {
       const { fridgeItems, appliances, maxCookingTime } = req.body;
-      const recipes = await RecipeService.findSimilarRecipes({
+      const recipes = await recipeService.findSimilarRecipes({
         fridgeItems,
         appliances,
         maxCookingTime,
@@ -53,7 +54,10 @@ export const recipeController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const recipe = await RecipeService.updateRecipe(req.params.id, req.body);
+      const recipe = await recipeService.updateRecipe(
+        routeParam(req.params.id),
+        req.body
+      );
       res.json(recipe);
     } catch (error) {
       next(error);
@@ -66,7 +70,7 @@ export const recipeController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      await RecipeService.deleteRecipe(req.params.id);
+      await recipeService.deleteRecipe(routeParam(req.params.id));
       res.status(204).send();
     } catch (error) {
       next(error);

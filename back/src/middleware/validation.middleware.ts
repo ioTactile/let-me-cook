@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-import { AppError } from "@/middleware/error.middleware";
+import { AppError } from "@/domain/errors/app-error";
 
 export const validateRequest = (
   req: Request,

@@ -1,6 +1,7 @@
 import { Response, NextFunction } from "express";
-import { ApplianceService } from "@/services/appliance.service";
+import { applianceService } from "@/infrastructure/container";
 import { AuthenticatedRequest } from "@/types/express.types";
+import { routeParam } from "@/utils/route-param";
 
 export const applianceController = {
   async getAppliances(
@@ -9,7 +10,7 @@ export const applianceController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const appliances = await ApplianceService.getAppliances(req.user.id);
+      const appliances = await applianceService.getAppliances(req.user.id);
       res.json(appliances);
     } catch (error) {
       next(error);
@@ -22,7 +23,9 @@ export const applianceController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const appliance = await ApplianceService.getApplianceById(req.params.id);
+      const appliance = await applianceService.getApplianceById(
+        routeParam(req.params.id)
+      );
       if (!appliance) {
         res.status(404).json({ message: "Appareil non trouvé" });
         return;
@@ -39,7 +42,7 @@ export const applianceController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const appliance = await ApplianceService.createAppliance({
+      const appliance = await applianceService.createAppliance({
         ...req.body,
         userId: req.user.id,
       });
@@ -55,8 +58,8 @@ export const applianceController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      const appliance = await ApplianceService.updateAppliance(
-        req.params.id,
+      const appliance = await applianceService.updateAppliance(
+        routeParam(req.params.id),
         req.body
       );
       res.json(appliance);
@@ -71,7 +74,7 @@ export const applianceController = {
     next: NextFunction
   ): Promise<void> {
     try {
-      await ApplianceService.deleteAppliance(req.params.id);
+      await applianceService.deleteAppliance(routeParam(req.params.id));
       res.status(204).send();
     } catch (error) {
       next(error);

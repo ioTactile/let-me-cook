@@ -1,12 +1,10 @@
 import { shoppingLists } from "@/services/api.service";
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query-keys";
 
 export const useGetFrequentItems = (limit: number = 10) => {
   return useQuery({
-    queryKey: ["frequent-items"],
-    queryFn: async () => {
-      const response = await shoppingLists.getFrequentItems(limit);
-      return response.data;
-    },
+    queryKey: queryKeys.shoppingLists.frequentItems(),
+    queryFn: () => shoppingLists.getFrequentItems(limit),
   });
 };

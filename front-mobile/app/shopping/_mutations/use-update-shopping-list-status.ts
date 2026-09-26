@@ -1,16 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { shoppingLists } from "@/services/api.service";
+import { queryKeys } from "@/lib/query-keys";
 
 export const useUpdateShoppingListStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id }: { id: string }) => {
-      const response = await shoppingLists.validate(id);
-      return response.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shopping-lists"] });
+    mutationFn: ({ id }: { id: string }) => shoppingLists.validate(id),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.shoppingLists.all,
+      });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.shoppingLists.detail(variables.id),
+      });
     },
   });
 };

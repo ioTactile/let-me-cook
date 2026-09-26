@@ -23,7 +23,7 @@ import { useUpdateShoppingListStatus } from "@/app/shopping/_mutations/use-updat
 import { useUpdateShoppingListItem } from "@/app/shopping/_mutations/use-update-shopping-list-item";
 import { useSnackbarStore } from "@/stores/snackbar.store";
 
-export default function ShoppingListPage() {
+export default function ShoppingListScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
 

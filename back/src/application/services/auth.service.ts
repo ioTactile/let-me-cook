@@ -1,48 +1,41 @@
-import { Request } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { PrismaClient } from "@prisma/client";
-import { AppError } from "@/middleware/error.middleware";
-import { SessionService } from "@/services/session.service";
-
-const prisma = new PrismaClient();
+import { SessionPort } from "@/application/ports/session.port";
+import { UserRepository } from "@/application/ports/user.repository";
+import { AppError } from "@/domain/errors/app-error";
 
 export class AuthService {
-  private static readonly JWT_SECRET = process.env.JWT_SECRET!;
-  private static readonly JWT_EXPIRES_IN = "7d";
+  private readonly JWT_SECRET = process.env.JWT_SECRET!;
+  private readonly JWT_EXPIRES_IN = "7d";
 
-  static async register(
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async register(
     userData: {
       email: string;
       password: string;
       username: string;
     },
-    req: Request
+    session: SessionPort
   ) {
     try {
-      // Vérifier si l'utilisateur existe déjà
-      const existingUser = await prisma.user.findUnique({
-        where: { email: userData.email },
-      });
+      const existingUser = await this.userRepository.findByEmail(
+        userData.email
+      );
 
       if (existingUser) {
         throw new AppError("Un utilisateur avec cet email existe déjà", 400);
       }
 
-      // Hasher le mot de passe
       const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-      // Créer l'utilisateur
-      const user = await prisma.user.create({
-        data: {
-          ...userData,
-          password: hashedPassword,
-        },
+      const user = await this.userRepository.create({
+        ...userData,
+        password: hashedPassword,
       });
 
-      // Générer le token JWT
       const token = this.generateToken(user.id);
-      await SessionService.createSession(req, user.id);
+      await session.create(user.id);
 
       return {
         user: {
@@ -60,21 +53,17 @@ export class AuthService {
     }
   }
 
-  static async login(
+  async login(
     credentials: { email: string; password: string },
-    req: Request
+    session: SessionPort
   ) {
     try {
-      // Trouver l'utilisateur
-      const user = await prisma.user.findUnique({
-        where: { email: credentials.email },
-      });
+      const user = await this.userRepository.findByEmail(credentials.email);
 
       if (!user) {
         throw new AppError("Email ou mot de passe incorrect", 401);
       }
 
-      // Vérifier le mot de passe
       const isPasswordValid = await bcrypt.compare(
         credentials.password,
         user.password
@@ -84,9 +73,8 @@ export class AuthService {
         throw new AppError("Email ou mot de passe incorrect", 401);
       }
 
-      // Générer le token JWT
       const token = this.generateToken(user.id);
-      await SessionService.createSession(req, user.id);
+      await session.create(user.id);
 
       return {
         user: {
@@ -104,9 +92,9 @@ export class AuthService {
     }
   }
 
-  static async logout(req: Request): Promise<void> {
+  async logout(session: SessionPort): Promise<void> {
     try {
-      await SessionService.destroySession(req);
+      await session.destroy();
     } catch (error) {
       if (error instanceof AppError) {
         throw error;
@@ -115,23 +103,15 @@ export class AuthService {
     }
   }
 
-  private static generateToken(userId: string): string {
+  private generateToken(userId: string): string {
     return jwt.sign({ userId }, this.JWT_SECRET, {
       expiresIn: this.JWT_EXPIRES_IN,
     });
   }
 
-  static async getCurrentUser(userId: string) {
+  async getCurrentUser(userId: string) {
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          email: true,
-          username: true,
-          createdAt: true,
-        },
-      });
+      const user = await this.userRepository.findById(userId);
 
       if (!user) {
         throw new AppError("Utilisateur non trouvé", 404);

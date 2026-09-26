@@ -43,10 +43,16 @@ export default function CreateShoppingListScreen() {
   });
   const [showUnitMenu, setShowUnitMenu] = useState<boolean>(false);
 
-  const { data: frequentItems, isLoading: isFrequentItemsLoading } =
-    useGetFrequentItems();
-  const { data: searchResults, isFetching: isSearchLoading } =
-    useSearchItems(searchTerm);
+  const {
+    data: frequentItems,
+    isLoading: isFrequentItemsLoading,
+    error: frequentItemsError,
+  } = useGetFrequentItems();
+  const {
+    data: searchResults,
+    isFetching: isSearchLoading,
+    error: searchError,
+  } = useSearchItems(searchTerm);
 
   const { mutate: createShoppingList, isPending } = useCreateShoppingList();
 
@@ -224,6 +230,18 @@ export default function CreateShoppingListScreen() {
             )}
           </ScrollView>
         </View>
+      )}
+
+      {frequentItemsError && (
+        <Text style={styles.error}>
+          Erreur lors du chargement des ingrédients fréquents
+        </Text>
+      )}
+
+      {searchError && (
+        <Text style={styles.error}>
+          Erreur lors de la recherche d'ingrédients
+        </Text>
       )}
 
       <ScrollView style={styles.itemsList}>

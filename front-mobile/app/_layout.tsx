@@ -31,6 +31,13 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  // Hide the splash screen after the fonts have loaded.
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
   // Initialiser l'état d'authentification
   useEffect(() => {
     initializeAuth();
@@ -44,12 +51,6 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
   if (!loaded) {
     return null;
   }
@@ -61,8 +62,6 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="auth/login" options={{ headerShown: false }} />
           <Stack.Screen name="auth/register" options={{ headerShown: false }} />
-          <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
-          <Stack.Screen name="recipe/new" options={{ headerShown: false }} />
         </Stack>
         <Snackbar />
         <ConfirmationDialog />

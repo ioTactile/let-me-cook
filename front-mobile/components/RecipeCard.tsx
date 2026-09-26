@@ -8,7 +8,7 @@ interface RecipeCardProps {
   onPress?: () => void;
 }
 
-export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
+export function RecipeCard({ recipe, onPress }: RecipeCardProps) {
   return (
     <Card style={styles.card} onPress={onPress}>
       <Card.Content>
@@ -24,7 +24,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onPress }) => {
       </Card.Content>
     </Card>
   );
-};
+}
 
 const styles = StyleSheet.create({
   card: {

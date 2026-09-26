@@ -3,7 +3,7 @@ import {
   ShoppingListStatus,
   ShoppingListItemStatus,
   Unit,
-} from "@prisma/client";
+} from "@/domain/enums";
 
 export interface ShoppingListItem extends BaseModel {
   shoppingListId: string;
@@ -30,7 +30,7 @@ export interface CreateShoppingListDto {
   items: CreateShoppingListItemDto[];
 }
 
-export interface UpdateShoppingListDto extends Partial<CreateShoppingListDto> {}
+export type UpdateShoppingListDto = Partial<CreateShoppingListDto>;
 
 export interface CreateShoppingListItemDto {
   shoppingListId: string;
@@ -41,5 +41,4 @@ export interface CreateShoppingListItemDto {
   imageUrl?: string;
 }
 
-export interface UpdateShoppingListItemDto
-  extends Partial<CreateShoppingListItemDto> {}
+export type UpdateShoppingListItemDto = Partial<CreateShoppingListItemDto>;

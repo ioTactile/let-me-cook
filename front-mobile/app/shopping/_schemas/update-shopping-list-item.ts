@@ -5,9 +5,9 @@ export const updateShoppingListItemSchema = z.object({
   items: z.array(
     z.object({
       id: z.string(),
-      status: z.nativeEnum(ShoppingListItemStatus).optional(),
+      status: z.enum(ShoppingListItemStatus).optional(),
       quantity: z.number().optional(),
-      unit: z.nativeEnum(Unit).optional(),
+      unit: z.enum(Unit).optional(),
     })
   ),
 });

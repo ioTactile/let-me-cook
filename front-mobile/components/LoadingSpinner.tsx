@@ -6,16 +6,16 @@ interface LoadingSpinnerProps {
   message?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+export function LoadingSpinner({
   message = "Chargement...",
-}) => {
+}: LoadingSpinnerProps) {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" />
       <Text style={styles.message}>{message}</Text>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -1,14 +1,17 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { User, Recipe, FridgeItem, Appliance, ShoppingList } from "@/types";
+import {
+  AuthResponse,
+  CreateApplianceDto,
+  CreateFridgeItemDto,
+  CreateShoppingListDto,
+  CreateShoppingListItemDto,
+  UpdateShoppingListItemsDto,
+} from "@/types/api.dto";
 import { transformEmptyStringsToNull } from "@/utils/transform-empty-string-to-null";
-import { CreateApplianceInputs } from "@/app/appliance/_schemas/create-appliance";
-import { CreateFridgeItemInputs } from "@/app/fridge/_schemas/create-fridge-item";
-import { CreateShoppingListInputs } from "@/app/shopping/_schemas/create-shopping-list";
-import { UpdateShoppingListItemInputs } from "@/app/shopping/_schemas/update-shopping-list-item";
-import { CreateShoppingListItemInputs } from "@/app/shopping/_schemas/create-shopping-list-item";
 
-const API_URL = process.env.API_URL || "http://localhost:8000/api";
+const API_URL = process.env.API_URL || "http://192.168.1.55:8000/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -17,7 +20,6 @@ const api = axios.create({
   },
 });
 
-// Intercepteur pour ajouter le token d'authentification
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem("token");
   if (token) {
@@ -26,119 +28,218 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// Auth
 export const auth = {
-  login: async (email: string, password: string) => {
-    const response = await api.post("/auth/login", { email, password });
-    await AsyncStorage.setItem("token", response.data.token);
-    return response.data;
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>("/auth/login", {
+      email,
+      password,
+    });
+    return data;
   },
-  register: async (email: string, password: string, username: string) => {
-    const response = await api.post("/auth/register", {
+  register: async (
+    email: string,
+    password: string,
+    username: string
+  ): Promise<AuthResponse> => {
+    const { data } = await api.post<AuthResponse>("/auth/register", {
       email,
       password,
       username,
     });
-    await AsyncStorage.setItem("token", response.data.token);
-    return response.data;
+    return data;
   },
-  logout: async () => {
-    await AsyncStorage.removeItem("token");
+  logout: async (): Promise<void> => {
+    // Le token est retiré par le store auth
   },
-  getUser: async () => {
-    const response = await api.get("/auth/me");
-    return response.data as User;
+  getUser: async (): Promise<User> => {
+    const { data } = await api.get<User>("/auth/me");
+    return data;
   },
 };
 
-// Recipes
 export const recipes = {
-  getSimilar: (data: {
+  getSimilar: async (payload: {
     fridgeItems: string[];
     appliances: string[];
     maxCookingTime: number;
-  }) => api.post<Recipe[]>("/recipes/similar", data),
-  getById: (id: string) => api.get<Recipe>(`/recipes/${id}`),
-  create: (data: Omit<Recipe, "id" | "userId" | "createdAt" | "updatedAt">) =>
-    api.post<Recipe>("/recipes", data),
-  update: (id: string, data: Partial<Recipe>) =>
-    api.put<Recipe>(`/recipes/${id}`, data),
-  delete: (id: string) => api.delete(`/recipes/${id}`),
+  }): Promise<Recipe[]> => {
+    const { data } = await api.post<Recipe[]>("/recipes/similar", payload);
+    return data;
+  },
+  getById: async (id: string): Promise<Recipe> => {
+    const { data } = await api.get<Recipe>(`/recipes/${id}`);
+    return data;
+  },
+  create: async (
+    payload: Omit<Recipe, "id" | "createdAt" | "updatedAt" | "embedding">
+  ): Promise<Recipe> => {
+    const { data } = await api.post<Recipe>("/recipes", payload);
+    return data;
+  },
+  update: async (id: string, payload: Partial<Recipe>): Promise<Recipe> => {
+    const { data } = await api.put<Recipe>(`/recipes/${id}`, payload);
+    return data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/recipes/${id}`);
+  },
 };
 
-// Fridge
 export const fridge = {
-  getAll: () => api.get<FridgeItem[]>("/fridge"),
-  getById: (id: string) => api.get<FridgeItem>(`/fridge/${id}`),
-  create: (data: CreateFridgeItemInputs) =>
-    api.post<FridgeItem>("/fridge", transformEmptyStringsToNull(data)),
-  update: (id: string, data: Partial<CreateFridgeItemInputs>) =>
-    api.put<FridgeItem>(`/fridge/${id}`, transformEmptyStringsToNull(data)),
-  delete: (id: string) => api.delete(`/fridge/${id}`),
+  getAll: async (): Promise<FridgeItem[]> => {
+    const { data } = await api.get<FridgeItem[]>("/fridge");
+    return data;
+  },
+  getById: async (id: string): Promise<FridgeItem> => {
+    const { data } = await api.get<FridgeItem>(`/fridge/${id}`);
+    return data;
+  },
+  create: async (payload: CreateFridgeItemDto): Promise<FridgeItem> => {
+    const { data } = await api.post<FridgeItem>(
+      "/fridge",
+      transformEmptyStringsToNull(payload)
+    );
+    return data;
+  },
+  update: async (
+    id: string,
+    payload: Partial<CreateFridgeItemDto>
+  ): Promise<FridgeItem> => {
+    const { data } = await api.put<FridgeItem>(
+      `/fridge/${id}`,
+      transformEmptyStringsToNull(payload)
+    );
+    return data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/fridge/${id}`);
+  },
 };
 
-// Appliances
 export const appliances = {
-  getAll: () => api.get<Appliance[]>("/appliances"),
-  getById: (id: string) => api.get<Appliance>(`/appliances/${id}`),
-  create: (data: CreateApplianceInputs) =>
-    api.post<Appliance>("/appliances", data),
-  update: (id: string, data: Partial<CreateApplianceInputs>) =>
-    api.put<Appliance>(`/appliances/${id}`, data),
-  delete: (id: string) => api.delete(`/appliances/${id}`),
+  getAll: async (): Promise<Appliance[]> => {
+    const { data } = await api.get<Appliance[]>("/appliances");
+    return data;
+  },
+  getById: async (id: string): Promise<Appliance> => {
+    const { data } = await api.get<Appliance>(`/appliances/${id}`);
+    return data;
+  },
+  create: async (payload: CreateApplianceDto): Promise<Appliance> => {
+    const { data } = await api.post<Appliance>("/appliances", payload);
+    return data;
+  },
+  update: async (
+    id: string,
+    payload: Partial<CreateApplianceDto>
+  ): Promise<Appliance> => {
+    const { data } = await api.put<Appliance>(`/appliances/${id}`, payload);
+    return data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/appliances/${id}`);
+  },
 };
 
-// Shopping Lists
-export const shoppingLists = {
-  getAll: () => api.get<ShoppingList[]>("/shopping-lists"),
-  getById: (id: string) => api.get<ShoppingList>(`/shopping-lists/${id}`),
-  create: (data: CreateShoppingListInputs) =>
-    api.post<ShoppingList>("/shopping-lists", data),
-  update: (id: string, data: UpdateShoppingListItemInputs) =>
-    api.put<ShoppingList>(`/shopping-lists/${id}`, data),
+export type FrequentItem = {
+  ingredientName: string;
+  count: number;
+  imageUrl: string | null;
+};
 
-  delete: (id: string) => api.delete(`/shopping-lists/${id}`),
-  validate: (id: string) => api.post(`/shopping-lists/${id}/validate`),
-  getFrequentItems: (limit: number = 10) =>
-    api.get<
-      { ingredientName: string; count: number; imageUrl: string | null }[]
-    >(`/shopping-lists/frequent-items?limit=${limit}`),
-  searchItems: (searchTerm: string, limit: number = 10) =>
-    api.get<
-      { ingredientName: string; count: number; imageUrl: string | null }[]
-    >(`/shopping-lists/search-items?searchTerm=${searchTerm}&limit=${limit}`),
-  createItem: (id: string, data: CreateShoppingListItemInputs) =>
-    api.post<ShoppingList>(`/shopping-lists/${id}/items`, data),
-  updateItem: (
+export const shoppingLists = {
+  getAll: async (): Promise<ShoppingList[]> => {
+    const { data } = await api.get<ShoppingList[]>("/shopping-lists");
+    return data;
+  },
+  getById: async (id: string): Promise<ShoppingList> => {
+    const { data } = await api.get<ShoppingList>(`/shopping-lists/${id}`);
+    return data;
+  },
+  create: async (payload: CreateShoppingListDto): Promise<ShoppingList> => {
+    const { data } = await api.post<ShoppingList>("/shopping-lists", payload);
+    return data;
+  },
+  update: async (
+    id: string,
+    payload: UpdateShoppingListItemsDto
+  ): Promise<ShoppingList> => {
+    const { data } = await api.put<ShoppingList>(
+      `/shopping-lists/${id}`,
+      payload
+    );
+    return data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/shopping-lists/${id}`);
+  },
+  validate: async (id: string): Promise<ShoppingList> => {
+    const { data } = await api.post<ShoppingList>(
+      `/shopping-lists/${id}/validate`
+    );
+    return data;
+  },
+  getFrequentItems: async (limit: number = 10): Promise<FrequentItem[]> => {
+    const { data } = await api.get<FrequentItem[]>(
+      `/shopping-lists/frequent-items?limit=${limit}`
+    );
+    return data;
+  },
+  searchItems: async (
+    searchTerm: string,
+    limit: number = 10
+  ): Promise<FrequentItem[]> => {
+    const { data } = await api.get<FrequentItem[]>(
+      `/shopping-lists/search-items?searchTerm=${searchTerm}&limit=${limit}`
+    );
+    return data;
+  },
+  createItem: async (
+    id: string,
+    payload: CreateShoppingListItemDto
+  ): Promise<ShoppingList> => {
+    const { data } = await api.post<ShoppingList>(
+      `/shopping-lists/${id}/items`,
+      payload
+    );
+    return data;
+  },
+  updateItem: async (
     id: string,
     itemId: string,
-    data: UpdateShoppingListItemInputs
-  ) => api.put<ShoppingList>(`/shopping-lists/${id}/items/${itemId}`, data),
-  deleteItem: (id: string, itemId: string) =>
-    api.delete(`/shopping-lists/${id}/items/${itemId}`),
+    payload: UpdateShoppingListItemsDto
+  ): Promise<ShoppingList> => {
+    const { data } = await api.put<ShoppingList>(
+      `/shopping-lists/${id}/items/${itemId}`,
+      payload
+    );
+    return data;
+  },
+  deleteItem: async (id: string, itemId: string): Promise<void> => {
+    await api.delete(`/shopping-lists/${id}/items/${itemId}`);
+  },
 };
 
-// AI
 export const ai = {
   generateRecipe: async ({
     ingredients,
-    appliances,
+    appliances: applianceNames,
   }: {
     ingredients: string[];
     appliances: string[];
   }) => {
-    const response = await api.post("/ai/suggest-recipes", {
+    const { data } = await api.post("/ai/suggest-recipes", {
       ingredients,
-      appliances,
+      appliances: applianceNames,
     });
-    return response.data;
+    return data;
   },
   analyzeRecipe: async (recipe: string) => {
-    const response = await api.post("/ai/analyze-recipe", { recipe });
-    return response.data;
+    const { data } = await api.post("/ai/analyze-recipe", { recipe });
+    return data;
   },
   generateShoppingList: async (recipe: string) => {
-    const response = await api.post("/ai/generate-shopping-list", { recipe });
-    return response.data;
+    const { data } = await api.post("/ai/generate-shopping-list", { recipe });
+    return data;
   },
 };

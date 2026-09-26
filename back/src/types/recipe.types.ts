@@ -21,7 +21,7 @@ export interface CreateRecipeDto {
   metadata?: Record<string, any>;
 }
 
-export interface UpdateRecipeDto extends Partial<CreateRecipeDto> {}
+export type UpdateRecipeDto = Partial<CreateRecipeDto>;
 
 export interface RecipeSearchContext {
   fridgeItems: string[];

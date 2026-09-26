@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from "express";
+import { AppError } from "@/domain/errors/app-error";
 
-export class AppError extends Error {
-  constructor(public message: string, public statusCode: number) {
-    super(message);
-    this.name = "AppError";
-  }
-}
+export { AppError };
 
 export const errorHandler = (
   err: Error | AppError,

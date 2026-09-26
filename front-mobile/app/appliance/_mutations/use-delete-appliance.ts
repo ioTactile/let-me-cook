@@ -1,11 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { appliances } from "@/services/api.service";
+import { queryKeys } from "@/lib/query-keys";
 
 export const useDeleteAppliance = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await appliances.delete(id);
-      return response.data;
+    mutationFn: (id: string) => appliances.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.appliances.all });
     },
   });
 };

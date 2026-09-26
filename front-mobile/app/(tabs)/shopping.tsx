@@ -16,7 +16,7 @@ import { useGetShoppingLists } from "@/hooks/use-get-shopping-lists";
 import { useSnackbarStore } from "@/stores/snackbar.store";
 import { useDeleteShoppingList } from "@/app/shopping/_mutations/use-delete-shopping-list";
 
-export default function ShoppingScreen() {
+export default function ShoppingListsScreen() {
   const theme = useTheme();
   const [dragging, setDragging] = useState(false);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -125,7 +125,11 @@ export default function ShoppingScreen() {
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push("/shopping/new")}
+        onPress={() =>
+          router.push({
+            pathname: "/shopping/new",
+          })
+        }
       />
 
       {dragging && (

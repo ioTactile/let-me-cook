@@ -1,16 +1,11 @@
 import OpenAI from "openai";
-import { AppError } from "@/middleware/error.middleware";
+import { AiPort } from "@/application/ports/ai.port";
+import { AppError } from "@/domain/errors/app-error";
 
-export class OpenAIService {
-  private static client: OpenAI;
+export class OpenAIAdapter implements AiPort {
+  private client: OpenAI | null = null;
 
-  private static ensureInitialized() {
-    if (!this.client) {
-      this.initialize();
-    }
-  }
-
-  static initialize() {
+  initialize(): void {
     if (!process.env.OPENAI_API_KEY) {
       throw new AppError("La clé API OpenAI n'est pas configurée", 500);
     }
@@ -19,23 +14,30 @@ export class OpenAIService {
     });
   }
 
-  static async generateEmbedding(text: string): Promise<number[]> {
+  private ensureInitialized(): OpenAI {
+    if (!this.client) {
+      this.initialize();
+    }
+    return this.client!;
+  }
+
+  async generateEmbedding(text: string): Promise<number[]> {
     try {
-      this.ensureInitialized();
-      const response = await this.client.embeddings.create({
+      const client = this.ensureInitialized();
+      const response = await client.embeddings.create({
         model: "text-embedding-3-small",
         input: text,
         encoding_format: "float",
       });
       return response.data[0].embedding;
-    } catch (error) {
+    } catch {
       throw new AppError("Erreur lors de la génération de l'embedding", 500);
     }
   }
 
-  static async analyzeIngredient(ingredientName: string) {
+  async analyzeIngredient(ingredientName: string): Promise<string | null> {
     try {
-      this.ensureInitialized();
+      const client = this.ensureInitialized();
       const prompt = `
         Analysez l'ingrédient suivant et fournissez:
         1. Les valeurs nutritionnelles principales
@@ -47,7 +49,7 @@ export class OpenAIService {
         Ingrédient: ${ingredientName}
       `;
 
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
@@ -55,10 +57,7 @@ export class OpenAIService {
             content:
               "Vous êtes un expert en nutrition et en analyse d'ingrédients.",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.5,
         max_tokens: 1000,
@@ -71,12 +70,12 @@ export class OpenAIService {
     }
   }
 
-  static async generateRecipeSuggestions(
+  async generateRecipeSuggestions(
     ingredients: string[],
     appliances: string[]
-  ) {
+  ): Promise<string | null> {
     try {
-      this.ensureInitialized();
+      const client = this.ensureInitialized();
       const prompt = `
         En tant qu'expert culinaire, suggérez des recettes possibles avec les ingrédients suivants:
         Ingrédients disponibles: ${ingredients.join(", ")}
@@ -90,7 +89,7 @@ export class OpenAIService {
         5. Le niveau de difficulté
       `;
 
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
@@ -98,10 +97,7 @@ export class OpenAIService {
             content:
               "Vous êtes un expert culinaire qui aide à créer des recettes avec les ingrédients disponibles.",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.7,
         max_tokens: 1000,
@@ -117,9 +113,9 @@ export class OpenAIService {
     }
   }
 
-  static async analyzeRecipe(recipe: string) {
+  async analyzeRecipe(recipe: string): Promise<string | null> {
     try {
-      this.ensureInitialized();
+      const client = this.ensureInitialized();
       const prompt = `
         Analysez la recette suivante et fournissez:
         1. Les points forts nutritionnels
@@ -130,7 +126,7 @@ export class OpenAIService {
         Recette: ${recipe}
       `;
 
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
@@ -138,10 +134,7 @@ export class OpenAIService {
             content:
               "Vous êtes un expert en nutrition et en analyse culinaire.",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.5,
         max_tokens: 800,
@@ -154,9 +147,9 @@ export class OpenAIService {
     }
   }
 
-  static async generateShoppingList(recipe: string) {
+  async generateShoppingList(recipe: string): Promise<string | null> {
     try {
-      this.ensureInitialized();
+      const client = this.ensureInitialized();
       const prompt = `
         À partir de la recette suivante, générez une liste de courses détaillée avec les quantités:
         
@@ -168,7 +161,7 @@ export class OpenAIService {
         etc.
       `;
 
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
@@ -176,10 +169,7 @@ export class OpenAIService {
             content:
               "Vous êtes un assistant qui aide à créer des listes de courses précises.",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.3,
         max_tokens: 500,
@@ -195,11 +185,9 @@ export class OpenAIService {
     }
   }
 
-  static async generateIngredientImageUrl(
-    ingredientName: string
-  ): Promise<string> {
+  async generateIngredientImageUrl(ingredientName: string): Promise<string> {
     try {
-      this.ensureInitialized();
+      const client = this.ensureInitialized();
       const prompt = `
         Trouvez une image de haute qualité de l'ingrédient suivant sur Unsplash.
         L'image doit être :
@@ -214,7 +202,7 @@ export class OpenAIService {
         L'URL doit être de la forme : https://images.unsplash.com/photo-XXXXXXXXXXXX
       `;
 
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: "gpt-4",
         messages: [
           {
@@ -222,10 +210,7 @@ export class OpenAIService {
             content:
               "Vous êtes un assistant spécialisé dans la recherche d'images culinaires sur Unsplash. Vous denez toujours répondre avec une URL directe d'image Unsplash, sans texte supplémentaire. L'image doit être pertinente et de haute qualité.",
           },
-          {
-            role: "user",
-            content: prompt,
-          },
+          { role: "user", content: prompt },
         ],
         temperature: 0.3,
         max_tokens: 200,
@@ -236,7 +221,6 @@ export class OpenAIService {
         throw new AppError("Impossible de générer une URL d'image valide", 500);
       }
 
-      // Vérifier que l'URL est bien une URL Unsplash
       if (!content.startsWith("https://images.unsplash.com/photo-")) {
         throw new AppError(
           "L'URL générée n'est pas une URL Unsplash valide",
@@ -247,6 +231,7 @@ export class OpenAIService {
       return content;
     } catch (error) {
       console.log("error generate ingredient image url", error);
+      if (error instanceof AppError) throw error;
       throw new AppError(
         "Erreur lors de la génération de l'URL de l'image",
         500

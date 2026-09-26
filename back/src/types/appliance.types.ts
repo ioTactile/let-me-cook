@@ -12,4 +12,4 @@ export interface CreateApplianceDto {
   description: string | null;
 }
 
-export interface UpdateApplianceDto extends Partial<CreateApplianceDto> {}
+export type UpdateApplianceDto = Partial<CreateApplianceDto>;

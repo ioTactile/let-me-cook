@@ -5,7 +5,7 @@ import { useSnackbarStore } from "@/stores/snackbar.store";
 
 export type SnackbarType = "success" | "error" | "info" | "warning";
 
-export const Snackbar: React.FC = () => {
+export function Snackbar() {
   const theme = useTheme();
   const { visible, message, type, hideSnackbar } = useSnackbarStore();
 
@@ -33,7 +33,7 @@ export const Snackbar: React.FC = () => {
       <Text style={styles.message}>{message}</Text>
     </PaperSnackbar>
   );
-};
+}
 
 const styles = StyleSheet.create({
   snackbar: {

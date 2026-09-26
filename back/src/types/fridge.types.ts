@@ -18,4 +18,4 @@ export interface CreateFridgeItemDto {
   metadata: Record<string, any> | null;
 }
 
-export interface UpdateFridgeItemDto extends Partial<CreateFridgeItemDto> {}
+export type UpdateFridgeItemDto = Partial<CreateFridgeItemDto>;

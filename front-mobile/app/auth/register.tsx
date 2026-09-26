@@ -1,32 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 import { TextInput, Button, Text } from "react-native-paper";
 
-import { auth } from "@/services/api.service";
-import { useAuth } from "@/stores/auth.store";
+import { RegisterInputs, registerSchema } from "@/app/auth/_schemas/register";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { useRegister } from "@/app/auth/_mutations/register";
 
 export default function RegisterScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const { login } = useAuth();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterInputs>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      username: "",
+    },
+    mode: "onChange",
+  });
 
-  const handleRegister = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await auth.register(email, password, username);
-      await login(response.token);
-      router.replace("/");
-    } catch (err) {
-      setError("Erreur lors de l'inscription");
-    } finally {
-      setLoading(false);
-    }
+  const { mutate: register, isPending } = useRegister();
+
+  const handleRegister: SubmitHandler<RegisterInputs> = async (data) => {
+    register(data);
   };
 
   return (
@@ -34,36 +35,66 @@ export default function RegisterScreen() {
       <Text variant="headlineMedium" style={styles.title}>
         Créer un compte
       </Text>
-      <TextInput
-        label="Nom d'utilisateur"
-        value={username}
-        onChangeText={setUsername}
-        mode="outlined"
-        style={styles.input}
-        autoCapitalize="none"
+
+      <Controller
+        control={control}
+        name="username"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            label="Nom d'utilisateur"
+            mode="outlined"
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        )}
       />
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        mode="outlined"
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
+      {errors.username && (
+        <Text style={styles.error}>{errors.username.message}</Text>
+      )}
+
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            label="Email"
+            mode="outlined"
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        )}
       />
-      <TextInput
-        label="Mot de passe"
-        value={password}
-        onChangeText={setPassword}
-        mode="outlined"
-        style={styles.input}
-        secureTextEntry
+      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            label="Mot de passe"
+            mode="outlined"
+            secureTextEntry
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        )}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {errors.password && (
+        <Text style={styles.error}>{errors.password.message}</Text>
+      )}
+
       <Button
         mode="contained"
-        onPress={handleRegister}
-        loading={loading}
+        onPress={handleSubmit(handleRegister)}
+        loading={isPending}
+        disabled={isPending}
         style={styles.button}
       >
         S'inscrire
@@ -71,6 +102,7 @@ export default function RegisterScreen() {
       <Button
         mode="text"
         onPress={() => router.push("/auth/login")}
+        disabled={isPending}
         style={styles.button}
       >
         Déjà un compte ? Se connecter

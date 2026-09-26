@@ -1,31 +1,33 @@
-import React, { useState } from "react";
+import React from "react";
 import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
 
 import { TextInput, Button, Text } from "react-native-paper";
 
-import { auth } from "@/services/api.service";
-import { useAuth } from "@/stores/auth.store";
+import { useLogin } from "@/app/auth/_mutations/login";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { LoginInputs, loginSchema } from "@/app/auth/_schemas/login";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { theme } from "@/constants/Theme";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const { login } = useAuth();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInputs>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    mode: "onChange",
+  });
 
-  const handleLogin = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await auth.login(email, password);
-      await login(response.token);
-      router.replace("/");
-    } catch (err) {
-      setError("Email ou mot de passe incorrect");
-    } finally {
-      setLoading(false);
-    }
+  const { mutate: login, isPending } = useLogin();
+
+  const handleLogin: SubmitHandler<LoginInputs> = async (data) => {
+    login(data);
   };
 
   return (
@@ -33,28 +35,48 @@ export default function LoginScreen() {
       <Text variant="headlineMedium" style={styles.title}>
         Let Me Cook
       </Text>
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        mode="outlined"
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
+
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            label="Email"
+            mode="outlined"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        )}
       />
-      <TextInput
-        label="Mot de passe"
-        value={password}
-        onChangeText={setPassword}
-        mode="outlined"
-        style={styles.input}
-        secureTextEntry
+      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            value={value}
+            onChangeText={onChange}
+            label="Mot de passe"
+            mode="outlined"
+            secureTextEntry
+            autoCapitalize="none"
+            style={styles.input}
+          />
+        )}
       />
-      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {errors.password && (
+        <Text style={styles.error}>{errors.password.message}</Text>
+      )}
+
       <Button
         mode="contained"
-        onPress={handleLogin}
-        loading={loading}
+        onPress={handleSubmit(handleLogin)}
+        loading={isPending}
+        disabled={isPending}
         style={styles.button}
       >
         Se connecter
@@ -62,6 +84,7 @@ export default function LoginScreen() {
       <Button
         mode="text"
         onPress={() => router.push("/auth/register")}
+        disabled={isPending}
         style={styles.button}
       >
         Créer un compte
@@ -87,7 +110,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   error: {
-    color: "red",
+    color: theme.colors.error,
     marginBottom: 10,
   },
 });
